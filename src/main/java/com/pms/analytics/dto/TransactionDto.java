@@ -14,14 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionDto {
-    private UUID transactionId; 
-    private UUID tradeId;
+    private UUID transactionId;
     private UUID portfolioId;
     private String symbol;
     private TradeSide side;
     private BigDecimal buyPrice;
     private BigDecimal sellPrice;
     private long quantity;
-    private long remainingQuantity;
-    private Instant timestamp;
 }

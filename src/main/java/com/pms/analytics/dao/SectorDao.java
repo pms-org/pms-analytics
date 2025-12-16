@@ -7,4 +7,5 @@ import java.util.List;
 
 
 public interface SectorDao extends JpaRepository<SectorEntity, String>{
+        List<String> findSymbolBySector(String sector);
 }

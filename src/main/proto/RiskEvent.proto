@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package com.pms.analytics.dto;
+
+import "google/protobuf/wrappers.proto";
+
+message RiskEvent {
+    string portfolioId = 1;
+    double avgRateOfReturn = 2;  // changed to double
+    double sharpeRatio = 3;      // changed to double
+    double sortinoRatio = 4;     // changed to double
+}

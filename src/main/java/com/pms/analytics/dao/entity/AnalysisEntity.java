@@ -1,7 +1,8 @@
 package com.pms.analytics.dao.entity;
 
 import java.io.Serializable;
-import java.time.Instant;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -15,55 +16,53 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
-
 @Entity
-@Table(name="sector_analysis")
+@Table(name="analysis")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SectorAnalysisEntity {
-
-    // @Column(name = "portfolio_id")
-    // private UUID portfolioId;
-
-    // @Column(name = "sector_name")
-    // private String sectorName;
+public class AnalysisEntity {
 
     @EmbeddedId
-    private SectorAnalysisKey id;
+    private AnalysisKey id;
 
-    @Column(name = "invested_price")
-    private BigDecimal investedPrice;
+    @Column(name = "holdings")
+    private Long holdings;
+
+    @Column(name = "total_invested")
+    private BigDecimal totalInvested;
+
+    @Column(name = "realized_pnl")
+    private BigDecimal realizedPnl;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate(){
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate(){
-        updatedAt = Instant.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @Embeddable
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SectorAnalysisKey implements Serializable {
+    public static class AnalysisKey implements Serializable {
+
         @Column(name = "portfolio_id")
         private UUID portfolioId;
 
-        @Column(name = "sector_name")
-        private String sectorName;
-    }
+        @Column(name = "symbol")
+        private String symbol;
 
+    }
 }

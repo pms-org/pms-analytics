@@ -119,8 +119,8 @@ public class RiskMetricsService {
         // Standard deviation (Sharpe denominator)
         BigDecimal variance = BigDecimal.ZERO;
         for (int i = 0; i < values.size() - 1; i++) {
-            BigDecimal today = values.get(i);
-            BigDecimal yesterday = values.get(i + 1);
+            BigDecimal today = values.get(i + 1);
+            BigDecimal yesterday = values.get(i);
             BigDecimal dailyReturn = today.subtract(yesterday)
                     .divide(yesterday, SCALE, RoundingMode.HALF_UP);
 

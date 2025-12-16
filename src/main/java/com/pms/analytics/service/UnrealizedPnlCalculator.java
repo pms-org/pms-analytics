@@ -1,8 +1,11 @@
-package com.pms.analytics.scheduler;
+package com.pms.analytics.service;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -20,7 +23,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class UnrealizedPnlScheduler {
+public class UnrealizedPnlCalculator {
 
     private final TransactionsDao transactionsDao;
     private final RedisPriceCache priceCache;
@@ -29,8 +32,7 @@ public class UnrealizedPnlScheduler {
 
     private final Map<String, BigDecimal> lastKnownPrices = new ConcurrentHashMap<>();
 
-    @Scheduled(fixedRateString = "2000")
-    public void computeAndBroadcast() {
+    public void computeUnRealisedPnlAndBroadcast() {
 
         try {
             List<UUID> portfolioIds =

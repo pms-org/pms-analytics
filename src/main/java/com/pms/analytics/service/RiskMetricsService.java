@@ -64,22 +64,24 @@ public class RiskMetricsService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // Combine today, historical values
-        // List<BigDecimal> values = new ArrayList<>();
-        // values.add(todayValue);
-        // last29Days.stream()
-        //         .map(PortfolioValueHistoryEntity::getPortfolioValue)
-        //         .forEach(values::add);
-
-        List<BigDecimal> values = new ArrayList<>();
-
-        // Sort historical values oldest → newest, then map to portfolioValue
+        List<BigDecimal> ascValues = new ArrayList<>();
+        ascValues.add(todayValue);
         last29Days.stream()
-        .sorted(Comparator.comparing(PortfolioValueHistoryEntity::getDate)) // sort entities by date
-        .map(PortfolioValueHistoryEntity::getPortfolioValue)               // map to BigDecimal
-        .forEach(values::add);
+                .map(PortfolioValueHistoryEntity::getPortfolioValue)
+                .forEach(ascValues::add);
 
-        // Add today at the end
-        values.add(todayValue);
+        List<BigDecimal> values = ascValues.reversed();
+
+        // List<BigDecimal> values = new ArrayList<>();
+
+        // // Sort historical values oldest → newest, then map to portfolioValue
+        // last29Days.stream()
+        // .sorted(Comparator.comparing(PortfolioValueHistoryEntity::getDate)) // sort entities by date
+        // .map(PortfolioValueHistoryEntity::getPortfolioValue)               // map to BigDecimal
+        // .forEach(values::add);
+
+        // // Add today at the end
+        // values.add(todayValue);
 
 
 
@@ -91,8 +93,8 @@ public class RiskMetricsService {
         int negativeCount = 0;
 
         for (int i = 0; i < values.size() - 1; i++) {
-            BigDecimal today = values.get(i);
-            BigDecimal yesterday = values.get(i + 1);
+            BigDecimal today = values.get(i + 1);
+            BigDecimal yesterday = values.get(i);
 
             // Daily return = (today - yesterday) / yesterday
             BigDecimal dailyReturn = today.subtract(yesterday)

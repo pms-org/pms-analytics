@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.pms.analytics.dao.AnalysisDao;
 import com.pms.analytics.externalRedis.ExternalPriceClient;
 import com.pms.analytics.externalRedis.RedisPriceCache;
+import com.pms.analytics.service.UnrealizedPnlCalculator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +26,9 @@ public class PriceUpdateScheduler {
     @Autowired
     AnalysisDao analysisDao;
 
+    @Autowired
+    UnrealizedPnlCalculator unrealizedPnl;
+
     @Scheduled(fixedRate = 10000)
     public void refreshPrices() {
 
@@ -35,5 +39,8 @@ public class PriceUpdateScheduler {
             priceClient.fetchPriceAsync(symbol)
                     .subscribe(price -> priceCache.updatePrice(symbol, price))
         );
+
+        unrealizedPnl.computeUnRealisedPnlAndBroadcast();
+
     }
 }

@@ -8,11 +8,18 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class AnalysisService {
+public class ApiService {
     @Autowired
     AnalysisDao analysisDao;
 
+    @Autowired
+    UnrealizedPnlCalculator unrealizedPnl;
+
     public List<AnalysisEntity> getAllAnalysis(){
         return analysisDao.findAll();
+    }
+
+    public void getUnrealizedPnl(){
+        unrealizedPnl.computeUnRealisedPnlAndBroadcast();
     }
 }

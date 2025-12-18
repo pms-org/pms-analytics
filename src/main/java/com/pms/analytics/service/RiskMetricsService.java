@@ -52,7 +52,7 @@ public class RiskMetricsService {
                 analysisDao.findByIdPortfolioId(portfolioId);
 
         if (positions.isEmpty()) {
-            return ;
+            return;
         }
 
         BigDecimal todayValue = positions.stream()

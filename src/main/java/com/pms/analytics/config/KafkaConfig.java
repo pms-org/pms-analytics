@@ -84,13 +84,18 @@ public class KafkaConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaProtobufDeserializer.class);
         props.put("schema.registry.url", schemaRegistryUrl);
         props.put("specific.protobuf.value.type", Transaction.class.getName());
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 5);
+        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 10000);
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10000);
 
         DefaultKafkaConsumerFactory<String, Transaction> consumerFactory =
                 new DefaultKafkaConsumerFactory<>(props);
 
         ConcurrentKafkaListenerContainerFactory<String, Transaction> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
+                
         factory.setConsumerFactory(consumerFactory);
+        factory.setBatchListener(true);
         return factory;
     }
 

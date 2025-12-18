@@ -1,11 +1,9 @@
 package com.pms.analytics.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.pms.analytics.dao.AnalysisDao;
@@ -38,5 +36,9 @@ public class RiskMetricsCalculator {
         portfolioIds.forEach(portfolioId -> {
             riskMetricsService.computeRiskEvent(portfolioId);
         });
+
+        //save as batch here in outbox
+
     }
+    
 }

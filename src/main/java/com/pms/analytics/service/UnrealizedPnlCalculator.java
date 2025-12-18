@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.pms.analytics.dao.TransactionsDao;
@@ -68,7 +67,9 @@ public class UnrealizedPnlCalculator {
                             try {
                                 Mono<BigDecimal> monoPrice = externalPriceClient.fetchPriceAsync(symbol);
                                 currentPrice = monoPrice.block(Duration.ofSeconds(3));
-                            } catch (Exception ignored) {}
+                            } catch (Exception ignored) {
+                                
+                            }
                         }
 
                         if (currentPrice == null) continue;

@@ -1,11 +1,16 @@
 package com.pms.analytics.service;
 
-import com.pms.analytics.dao.AnalysisDao;
-import com.pms.analytics.dao.entity.AnalysisEntity;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.pms.analytics.dao.AnalysisDao;
+import com.pms.analytics.dao.StockDao;
+import com.pms.analytics.dao.entity.AnalysisEntity;
+import com.pms.analytics.dto.SectorMetricsDto;
 
 @Service
 public class ApiService {
@@ -15,6 +20,9 @@ public class ApiService {
     @Autowired
     UnrealizedPnlCalculator unrealizedPnl;
 
+    @Autowired
+    StockDao stockDao;
+
     public List<AnalysisEntity> getAllAnalysis(){
         return analysisDao.findAll();
     }
@@ -22,4 +30,5 @@ public class ApiService {
     public void getUnrealizedPnl(){
         unrealizedPnl.computeUnRealisedPnlAndBroadcast();
     }
+
 }

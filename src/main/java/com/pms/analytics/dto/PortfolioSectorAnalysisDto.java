@@ -1,5 +1,6 @@
 package com.pms.analytics.dto;
 
+import java.util.List;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -7,11 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class RiskEventDto {
+@NoArgsConstructor
+public class PortfolioSectorAnalysisDto {
     private UUID portfolioId;
-    private double avgRateOfReturn;   
-    private double sharpeRatio;
-    private double sortinoRatio;
+    private List<SectorMetricsDto> sectors;
 }

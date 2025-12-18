@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.pms.analytics.dao.AnalysisDao;
 import com.pms.analytics.externalRedis.ExternalPriceClient;
 import com.pms.analytics.externalRedis.RedisPriceCache;
+import com.pms.analytics.service.RiskMetricsCalculator;
 import com.pms.analytics.service.UnrealizedPnlCalculator;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,9 @@ public class PriceUpdateScheduler {
     @Autowired
     UnrealizedPnlCalculator unrealizedPnl;
 
+    @Autowired
+    RiskMetricsCalculator riskMetrics;
+
     @Scheduled(fixedRate = 10000)
     public void refreshPrices() {
 
@@ -41,6 +45,8 @@ public class PriceUpdateScheduler {
         );
 
         unrealizedPnl.computeUnRealisedPnlAndBroadcast();
+
+        riskMetrics.computeRiskMetricsForAllPortfolios();
 
     }
 }

@@ -1,4 +1,4 @@
-package com.pms.analytics.scheduler;
+package com.pms.analytics.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,19 +9,16 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.pms.analytics.dao.AnalysisDao;
-import com.pms.analytics.service.RiskMetricsService;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class RiskMetricsScheduler {
+public class RiskMetricsCalculator {
 
     private final AnalysisDao analysisDao;
     private final RiskMetricsService riskMetricsService;
 
-    // Runs every 10 seconds to compute risk metrics and store in outbox
-    @Scheduled(fixedRate = 10000)
     public void computeRiskMetricsForAllPortfolios() {
 
         // Fetch all portfolio IDs from AnalysisDao

@@ -17,23 +17,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TransactionService {
 
-    // private final RedisTransactionCache transactionCache;
     private final AnalysisDao analysisDao;
 
-    // @Transactional
-    // public void processTransaction(Transaction message) {
-    //     TransactionDto dto = TransactionMapper.fromProto(message);
-    //     System.out.println("Received Transaction DTO: " + dto);
-    //     boolean isProcessed = transactionCache.isDuplicate(dto.getTransactionId().toString());
-    //     if (isProcessed) {
-    //         System.out.println("Transaction: " + dto.getTransactionId() + " already processed!");
-    //         return;
-    //     }
-    //     processTransaction(dto);
-    //     // Mark as processed
-    //     transactionCache.markProcessed(dto.getTransactionId().toString());
-    // }
-   
     public void processTransaction(TransactionDto dto, Map<AnalysisEntity.AnalysisKey, AnalysisEntity> cachedAnalysisMap) {
 
         AnalysisEntity.AnalysisKey key
@@ -68,30 +53,6 @@ public class TransactionService {
         } else {
             handleSell(analysisEntity, dto);
         }
-
-        // if (dto.getSide() == TradeSide.BUY) {
-        //     // Create new if not exists
-        //     AnalysisEntity entity = existing.orElseGet(() -> {
-        //         AnalysisEntity e = new AnalysisEntity();
-        //         e.setId(key);
-        //         e.setHoldings(0L);
-        //         e.setTotalInvested(BigDecimal.ZERO);
-        //         e.setRealizedPnl(BigDecimal.ZERO);
-        //         return e;
-        //     });
-        //     handleBuy(entity, dto);
-        //     analysisDao.save(entity);
-        //     messagingTemplate.convertAndSend("/topic/position-update",entity);
-        // } else { // SELL
-        //     if (existing.isEmpty()) {
-        //         System.err.println("SELL failed: position does not exist for " + key);
-        //         return;
-        //     }
-        //     AnalysisEntity entity = existing.get();
-        //     handleSell(entity, dto);
-        //     analysisDao.save(entity);
-        //     messagingTemplate.convertAndSend("/topic/position-update",entity);
-        // }
 
         cachedAnalysisMap.put(key, analysisEntity);
     }

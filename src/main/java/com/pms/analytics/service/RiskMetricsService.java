@@ -32,12 +32,11 @@ public class RiskMetricsService {
     private final PortfolioValueHistoryDao historyDao;
     private final RedisPriceCache priceCache;
     private final AnalysisDao analysisDao;
-    private final AnalysisOutboxDao analysisOutboxDao;
 
     private static final int SCALE = 8;
     private static final MathContext MC = new MathContext(10, RoundingMode.HALF_UP);
 
-    public void computeRiskEvent(UUID portfolioId) {
+    public void computeRiskEvent(UUID portfolioId, List<AnalysisOutbox> batchedOutboxEntries) {
 
         List<PortfolioValueHistoryEntity> last29Days =
                 historyDao.findTop29ByPortfolioIdOrderByDateDesc(portfolioId);
@@ -160,7 +159,7 @@ public class RiskMetricsService {
         outbox.setPayload(proto.toByteArray());
         outbox.setStatus("PENDING");
 
-        analysisOutboxDao.save(outbox);
+        batchedOutboxEntries.add(outbox);
         System.out.println("Risk computed - stored in outbox");
     }
 }

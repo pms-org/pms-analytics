@@ -67,6 +67,7 @@ pipeline {
                         '''
 
                         // Copy .env inside EC2 from Jenkins secret file
+                        // Give permissions 
                         sh '''
                         scp -o StrictHostKeyChecking=no "$ENV_FILE" "$EC2_HOST:/home/ubuntu/.env"
                         '''

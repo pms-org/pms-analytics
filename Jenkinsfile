@@ -59,7 +59,7 @@ pipeline {
                 sshagent(['analytics-ec2-server']) {
                     withCredentials([file(credentialsId: 'analytics-env-file', variable: 'ENV_FILE')]) {
 
-                        // Copy compose file
+                        // Copy compose file to instance
                         sh '''
                         scp -o StrictHostKeyChecking=no \
                             compose.yaml \

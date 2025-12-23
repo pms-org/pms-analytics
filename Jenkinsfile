@@ -73,6 +73,7 @@ pipeline {
                         '''
 
                         // Deploy containers
+                        // Made docker as user for ubuntu
                         sh """
                         ssh -o StrictHostKeyChecking=no $EC2_HOST "
                             docker pull $DOCKERHUB_REPO:$IMAGE_TAG &&

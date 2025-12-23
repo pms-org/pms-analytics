@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Entity
-@Table(name = "trades")
+@Table(name = "pms_core_trades")
 public class TradesEntity {
 
     @Id

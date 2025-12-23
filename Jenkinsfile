@@ -42,7 +42,7 @@ pipeline {
         stage('Login & Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'analytics-dockerhub-credentials',
+                    credentialsId: 'dockerhub-credentials-analytics',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {

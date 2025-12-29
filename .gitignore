@@ -19,6 +19,7 @@ target/
 *.iml
 
 .env
+.env.*
 *.ipr
 
 ### NetBeans ###

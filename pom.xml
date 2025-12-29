@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.8</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.pms</groupId>
 	<artifactId>analytics</artifactId>
@@ -172,8 +172,6 @@
                 <configuration>
                     <protoSourceRoot>${project.basedir}/src/main/proto</protoSourceRoot>
                     <outputDirectory>${project.build.directory}/generated-sources/protobuf/java</outputDirectory>
-
-                    <!-- Auto-selects Windows / Linux / Mac -->
                     <protocArtifact>
                         com.google.protobuf:protoc:3.25.3:exe:${os.detected.classifier}
                     </protocArtifact>

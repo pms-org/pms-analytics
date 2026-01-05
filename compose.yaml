@@ -1,34 +1,42 @@
-version: "3.9"
 
 services:
   redis-master:
     image: redis:latest
     container_name: redis-master
-    hostname: redis-master
     command: redis-server /conf/redis-master.conf
     volumes:
       - ./redis:/conf
+      - redis-data:/data
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 
   redis-replica-1:
     image: redis:latest
     command: redis-server /conf/redis-replica.conf
     volumes:
-    - ./redis:/conf
+      - ./redis:/conf
+      - redis-replica-1-data:/data 
     depends_on:
-      - redis-master
+      redis-master:
+        condition: service_healthy
     networks:
       - backend
-
+      
   redis-replica-2:
     image: redis:latest
     command: redis-server /conf/redis-replica.conf
     volumes:
-    - ./redis:/conf
+      - ./redis:/conf
+      - redis-replica-2-data:/data
     depends_on:
-      - redis-master
+      redis-master:
+        condition: service_healthy
     networks:
       - backend
 
@@ -36,36 +44,46 @@ services:
     image: redis:latest
     command: sh -c "sleep 10 && redis-sentinel /conf/sentinel.conf"
     volumes:
-    - ./redis:/conf
+      - ./redis:/conf
     depends_on:
-      - redis-master
+      redis-master:
+        condition: service_healthy
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   sentinel-2:
     image: redis:latest
     command: sh -c "sleep 10 && redis-sentinel /conf/sentinel.conf"
     volumes:
-    - ./redis:/conf
+      - ./redis:/conf
     depends_on:
-      - redis-master
+      redis-master:
+        condition: service_healthy
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   sentinel-3:
     image: redis:latest
     command: sh -c "sleep 10 && redis-sentinel /conf/sentinel.conf"
     volumes:
-    - ./redis:/conf
+      - ./redis:/conf
     depends_on:
-      - redis-master
+      redis-master:
+        condition: service_healthy
     networks:
       - backend
-    volumes:
-      - redis-data:/data
-    command: redis-server --appendonly yes
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-p", "26379", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -149,19 +167,16 @@ services:
     image: sboomisnow/analytics-service:latest
     container_name: analytics-app-1
     depends_on:
-      - postgres
-      - sentinel-1
-      - sentinel-2
-      - sentinel-3
-      - kafka
-      - schema-registry
-    
-    redis:
-      condition: service_healthy
-    kafka:
-      condition: service_healthy
-    schema-registry:
-      condition: service_healthy
+      sentinel-1:
+        condition: service_healthy
+      sentinel-2:
+        condition: service_healthy
+      sentinel-3:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
     env_file:
       - .env
     ports:
@@ -179,19 +194,16 @@ services:
     image: sboomisnow/analytics-service:latest
     container_name: analytics-app-2
     depends_on:
-      - postgres
-      - sentinel-1
-      - sentinel-2
-      - sentinel-3
-      - kafka
-      - schema-registry
-    
-    redis:
-      condition: service_healthy
-    kafka:
-      condition: service_healthy
-    schema-registry:
-      condition: service_healthy
+      sentinel-1:
+        condition: service_healthy
+      sentinel-2:
+        condition: service_healthy
+      sentinel-3:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
     env_file:
       - .env
     ports:
@@ -210,6 +222,8 @@ networks:
 
 volumes:
   redis-data:
+  redis-replica-1-data:  
+  redis-replica-2-data:
   zookeeper-data:
   zookeeper-log:
   kafka-data:

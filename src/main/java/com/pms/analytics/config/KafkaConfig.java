@@ -3,7 +3,6 @@ package com.pms.analytics.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.pms.analytics.dto.RiskEventOuterClass;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -23,10 +22,11 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
+import com.pms.analytics.dto.RiskEventOuterClass;
+import com.pms.analytics.dto.TransactionOuterClass.Transaction;
+
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer;
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer;
-
-import com.pms.analytics.dto.TransactionOuterClass.Transaction;
 
 @Configuration
 public class KafkaConfig {

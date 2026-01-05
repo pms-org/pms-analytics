@@ -54,30 +54,72 @@ pipeline {
             }
         }
 
+    //     stage('Deploy to EC2') {
+    //         steps {
+    //             sshagent(['analytics-ec2-server']) {
+    //                 withCredentials([file(credentialsId: 'analytics-env-file', variable: 'ENV_FILE')]) {
+
+    //                     // Copy compose file to instance
+    //                     sh '''
+    //                     scp -o StrictHostKeyChecking=no \
+    //                         compose.yaml \
+    //                         $EC2_HOST:/home/ubuntu/compose.yaml
+    //                     '''
+
+    //                     // Copy .env inside EC2 from Jenkins secret file
+    //                     // Give permissions 
+    //                     sh '''
+    //                     scp -o StrictHostKeyChecking=no "$ENV_FILE" "$EC2_HOST:/home/ubuntu/.env"
+    //                     '''
+
+    //                     // Deploy containers
+    //                     // Made docker as user for ubuntu
+    //                     sh """
+    //                     ssh -o StrictHostKeyChecking=no $EC2_HOST "
+    //                         docker pull $DOCKERHUB_REPO:$IMAGE_TAG &&
+    //                         docker compose down &&
+    //                         docker compose up -d &&
+    //                         docker ps
+    //                     "
+    //                     """
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
         stage('Deploy to EC2') {
             steps {
                 sshagent(['analytics-ec2-server']) {
                     withCredentials([file(credentialsId: 'analytics-env-file', variable: 'ENV_FILE')]) {
 
-                        // Copy compose file to instance
+                        // Copy compose file
                         sh '''
                         scp -o StrictHostKeyChecking=no \
                             compose.yaml \
                             $EC2_HOST:/home/ubuntu/compose.yaml
                         '''
 
-                        // Copy .env inside EC2 from Jenkins secret file
-                        // Give permissions 
+                        // Copy redis config folder (THIS FIXES YOUR ISSUE)
                         sh '''
-                        scp -o StrictHostKeyChecking=no "$ENV_FILE" "$EC2_HOST:/home/ubuntu/.env"
+                        scp -o StrictHostKeyChecking=no -r \
+                            redis \
+                            $EC2_HOST:/home/ubuntu/redis
+                        '''
+
+                        // Copy .env
+                        sh '''
+                        scp -o StrictHostKeyChecking=no \
+                            "$ENV_FILE" \
+                            "$EC2_HOST:/home/ubuntu/.env"
                         '''
 
                         // Deploy containers
-                        // Made docker as user for ubuntu
                         sh """
                         ssh -o StrictHostKeyChecking=no $EC2_HOST "
+                            cd /home/ubuntu &&
+                            docker compose down -v --remove-orphans &&
                             docker pull $DOCKERHUB_REPO:$IMAGE_TAG &&
-                            docker compose down &&
                             docker compose up -d &&
                             docker ps
                         "
@@ -87,6 +129,7 @@ pipeline {
             }
         }
     }
+
 
     post {
         success { 

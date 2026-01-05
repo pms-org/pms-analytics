@@ -1,7 +1,7 @@
 
 services:
   redis-master:
-    image: redis:7.2
+    image: redis:latest
     container_name: redis-master
     command: redis-server /conf/redis-master.conf
     volumes:
@@ -17,7 +17,7 @@ services:
       start_period: 20s
 
   redis-replica-1:
-    image: redis:7.2
+    image: redis:latest
     command: redis-server /conf/redis-replica.conf
     volumes:
       - ./redis:/conf
@@ -29,7 +29,7 @@ services:
       - backend
 
   redis-replica-2:
-    image: redis:7.2
+    image: redis:latest
     command: redis-server /conf/redis-replica.conf
     volumes:
       - ./redis:/conf
@@ -41,7 +41,7 @@ services:
       - backend
 
   sentinel-1:
-    image: redis:7.2
+    image: redis:latest
     command: redis-sentinel /conf/sentinel.conf
     volumes:
       - ./redis:/conf
@@ -58,7 +58,7 @@ services:
 
   sentinel-2:
     image: redis:latest
-    command: sh -c "sleep 10 && redis-sentinel /conf/sentinel.conf"
+    command: redis-sentinel /conf/sentinel.conf
     volumes:
       - ./redis:/conf
     depends_on:
@@ -74,7 +74,7 @@ services:
 
   sentinel-3:
     image: redis:latest
-    command: sh -c "sleep 10 && redis-sentinel /conf/sentinel.conf"
+    command: redis-sentinel /conf/sentinel.conf
     volumes:
       - ./redis:/conf
     depends_on:

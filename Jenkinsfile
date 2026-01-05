@@ -84,10 +84,20 @@ pipeline {
 
                         // Copy redis config directory
                         sh """
-                        scp -o StrictHostKeyChecking=no -r \
-                            redis \
-                            $EC2_HOST:/home/ubuntu/
+                        ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST '
+                            sudo rm -rf /home/ubuntu/redis &&
+                            mkdir -p /home/ubuntu/redis &&
+                            sudo chown -R ubuntu:ubuntu /home/ubuntu
+                        '
+                        
+                        scp -o StrictHostKeyChecking=no -r redis \
+                            ubuntu@$EC2_HOST:/home/ubuntu/
+
+                        ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST '
+                            sudo chown -R ubuntu:ubuntu /home/ubuntu/redis
+                        '
                         """
+
 
                         // Copy .env file from Jenkins credentials
                         sh """

@@ -25,6 +25,7 @@ spring:
       schema.registry.url: http://schema-registry:8081
     consumer:
       group-id: demo-group
+      enable-auto-commit: false
 
   sql:
     init:
@@ -32,8 +33,15 @@ spring:
 
   data:
     redis:
-      host: redis
-      port: 6379
+      timeout: 10s
+      lettuce:
+        shutdown-timeout: 2s
+      sentinel:
+        master: mymaster
+        nodes:
+          - sentinel-1:26379
+          - sentinel-2:26379
+          - sentinel-3:26379
 
 finnhub:
   api:

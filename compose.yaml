@@ -1,11 +1,64 @@
 version: "3.9"
 
 services:
-  redis:
+  redis-master:
     image: redis:latest
-    container_name: redis
-    ports:
-      - "6379:6379"
+    container_name: redis-master
+    hostname: redis-master
+    command: redis-server /conf/redis-master.conf
+    volumes:
+      - ./redis:/conf
+    networks:
+      - backend
+
+
+  redis-replica-1:
+    image: redis:latest
+    command: redis-server /conf/redis-replica.conf
+    volumes:
+    - ./redis:/conf
+    depends_on:
+      - redis-master
+    networks:
+      - backend
+
+  redis-replica-2:
+    image: redis:latest
+    command: redis-server /conf/redis-replica.conf
+    volumes:
+    - ./redis:/conf
+    depends_on:
+      - redis-master
+    networks:
+      - backend
+
+  sentinel-1:
+    image: redis:latest
+    command: sh -c "sleep 10 && redis-sentinel /conf/sentinel.conf"
+    volumes:
+    - ./redis:/conf
+    depends_on:
+      - redis-master
+    networks:
+      - backend
+
+  sentinel-2:
+    image: redis:latest
+    command: sh -c "sleep 10 && redis-sentinel /conf/sentinel.conf"
+    volumes:
+    - ./redis:/conf
+    depends_on:
+      - redis-master
+    networks:
+      - backend
+
+  sentinel-3:
+    image: redis:latest
+    command: sh -c "sleep 10 && redis-sentinel /conf/sentinel.conf"
+    volumes:
+    - ./redis:/conf
+    depends_on:
+      - redis-master
     networks:
       - backend
     volumes:
@@ -91,21 +144,58 @@ services:
       timeout: 5s
       retries: 5
 
-  analytics-app:
+  analytics-app-1:
     # build: .
     image: sboomisnow/analytics-service:latest
-    container_name: analytics-app
+    container_name: analytics-app-1
     depends_on:
-      redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      schema-registry:
-        condition: service_healthy
+      - postgres
+      - sentinel-1
+      - sentinel-2
+      - sentinel-3
+      - kafka
+      - schema-registry
+    
+    redis:
+      condition: service_healthy
+    kafka:
+      condition: service_healthy
+    schema-registry:
+      condition: service_healthy
     env_file:
       - .env
     ports:
       - "8082:8082"
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  analytics-app-2:
+    # build: .
+    image: sboomisnow/analytics-service:latest
+    container_name: analytics-app-2
+    depends_on:
+      - postgres
+      - sentinel-1
+      - sentinel-2
+      - sentinel-3
+      - kafka
+      - schema-registry
+    
+    redis:
+      condition: service_healthy
+    kafka:
+      condition: service_healthy
+    schema-registry:
+      condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "8083:8082"
     networks:
       - backend
     healthcheck:

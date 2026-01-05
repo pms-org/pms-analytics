@@ -13,9 +13,11 @@ import com.pms.analytics.dao.AnalysisOutboxDao;
 import com.pms.analytics.dao.entity.AnalysisOutbox;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RiskMetricsCalculator {
 
     private final AnalysisDao analysisDao;
@@ -45,6 +47,7 @@ public class RiskMetricsCalculator {
         });
 
         //save as batch here in outbox
+        log.info("Saving {} records in outbox.",batchedOutboxEntries.size());
         analysisOutboxDao.saveAll(batchedOutboxEntries);
 
     }

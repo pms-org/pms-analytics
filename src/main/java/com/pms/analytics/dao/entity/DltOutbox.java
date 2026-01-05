@@ -16,17 +16,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "analytics_outbox")
-public class AnalysisOutbox {
+@Data
+@Entity
+@Table(name = "dlt_outbox")
+public class DltOutbox {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "AnalysisOutbox_id")
-    private UUID analysisOutboxId;
+    @GeneratedValue(strategy= GenerationType.UUID)
+    @Column(name = "dlt_outbox_id")
+    private UUID dltOutboxId;
 
     @Column(name = "portfolio_id", nullable = false)
     private UUID portfolioId;
@@ -55,4 +55,5 @@ public class AnalysisOutbox {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
 }

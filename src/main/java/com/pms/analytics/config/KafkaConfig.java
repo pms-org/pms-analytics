@@ -19,6 +19,9 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.util.backoff.FixedBackOff;
 
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer;
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer;
@@ -56,7 +59,6 @@ public class KafkaConfig {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaProtobufSerializer.class);
         props.put("schema.registry.url", schemaRegistryUrl);
 
-
         props.put(ProducerConfig.RETRIES_CONFIG, 5);
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
@@ -73,8 +75,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 
-
-
     @Bean(name = "protobufKafkaListenerContainerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, Transaction> protobufKafkaListenerContainerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -84,21 +84,23 @@ public class KafkaConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaProtobufDeserializer.class);
         props.put("schema.registry.url", schemaRegistryUrl);
         props.put("specific.protobuf.value.type", Transaction.class.getName());
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 5);
-        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 10000);
-        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 10000);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
+        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 20000);
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 20000);
 
-        DefaultKafkaConsumerFactory<String, Transaction> consumerFactory =
-                new DefaultKafkaConsumerFactory<>(props);
+        DefaultKafkaConsumerFactory<String, Transaction> consumerFactory
+                = new DefaultKafkaConsumerFactory<>(props);
 
-        ConcurrentKafkaListenerContainerFactory<String, Transaction> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-                
+        ConcurrentKafkaListenerContainerFactory<String, Transaction> factory
+                = new ConcurrentKafkaListenerContainerFactory<>();
+
         factory.setConsumerFactory(consumerFactory);
         factory.setBatchListener(true);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setCommonErrorHandler(errorHandler());
+
         return factory;
     }
-
 
     @Bean
     public ProducerFactory<String, RiskEventOuterClass.RiskEvent> riskEventProducerFactory() {
@@ -115,4 +117,26 @@ public class KafkaConfig {
     public KafkaTemplate<String, RiskEventOuterClass.RiskEvent> riskEventKafkaTemplate() {
         return new KafkaTemplate<>(riskEventProducerFactory());
     }
+
+    @Bean
+    public DefaultErrorHandler errorHandler() {
+
+        FixedBackOff backOff = new FixedBackOff(
+                2000L, // wait 2 seconds between retries
+                3 // retry 3 times
+        );
+
+        DefaultErrorHandler handler
+                = new DefaultErrorHandler(
+                        (record, ex) -> {
+                            // retries exhausted
+                            // do nothing
+                        },
+                        backOff
+                );
+
+        handler.setAckAfterHandle(false); // DO NOT COMMIT OFFSET
+        return handler;
+    }
+
 }

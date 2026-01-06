@@ -1,11 +1,10 @@
-
 services:
   redis-master:
     image: redis:latest
     container_name: redis-master
-    command: redis-server /conf/redis-master.conf
+    command: redis-server /redis/redis-master.conf
     volumes:
-      - ./redis:/conf
+      - ./redis:/redis
       - redis-data:/data
     networks:
       - backend
@@ -18,9 +17,9 @@ services:
 
   redis-replica-1:
     image: redis:latest
-    command: redis-server /conf/redis-replica.conf
+    command: redis-server /redis/redis-replica.conf
     volumes:
-      - ./redis:/conf
+      - ./redis:/redis
       - redis-replica-1-data:/data
     depends_on:
       redis-master:
@@ -30,9 +29,9 @@ services:
 
   redis-replica-2:
     image: redis:latest
-    command: redis-server /conf/redis-replica.conf
+    command: redis-server /redis/redis-replica.conf
     volumes:
-      - ./redis:/conf
+      - ./redis:/redis
       - redis-replica-2-data:/data
     depends_on:
       redis-master:
@@ -42,9 +41,9 @@ services:
 
   sentinel-1:
     image: redis:latest
-    command: redis-sentinel /conf/sentinel.conf
+    command: redis-sentinel /redis/sentinel.conf
     volumes:
-      - ./redis:/conf
+      - ./redis:/redis
     depends_on:
       redis-master:
         condition: service_healthy
@@ -58,9 +57,9 @@ services:
 
   sentinel-2:
     image: redis:latest
-    command: redis-sentinel /conf/sentinel.conf
+    command: redis-sentinel /redis/sentinel.conf
     volumes:
-      - ./redis:/conf
+      - ./redis:/redis
     depends_on:
       redis-master:
         condition: service_healthy
@@ -74,9 +73,9 @@ services:
 
   sentinel-3:
     image: redis:latest
-    command: redis-sentinel /conf/sentinel.conf
+    command: redis-sentinel /redis/sentinel.conf
     volumes:
-      - ./redis:/conf
+      - ./redis:/redis
     depends_on:
       redis-master:
         condition: service_healthy
@@ -222,7 +221,7 @@ networks:
 
 volumes:
   redis-data:
-  redis-replica-1-data:  
+  redis-replica-1-data:
   redis-replica-2-data:
   zookeeper-data:
   zookeeper-log:

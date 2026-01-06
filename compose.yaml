@@ -445,7 +445,7 @@ networks:
     driver: bridge
 
 volumes:
-  redis-master-data:
+  redis-data:
   redis-replica-1-data:
   redis-replica-2-data:
   sentinel-1-data:

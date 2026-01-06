@@ -274,6 +274,8 @@ services:
     image: redis:7.2
     command: >
       redis-sentinel
+      --sentinel resolve-hostnames yes
+      --sentinel announce-hostnames yes
       --sentinel monitor mymaster redis-master 6379 2
       --sentinel down-after-milliseconds mymaster 5000
       --sentinel failover-timeout mymaster 10000
@@ -294,6 +296,8 @@ services:
     image: redis:7.2
     command: >
       redis-sentinel
+      --sentinel resolve-hostnames yes
+      --sentinel announce-hostnames yes
       --sentinel monitor mymaster redis-master 6379 2
       --sentinel down-after-milliseconds mymaster 5000
       --sentinel failover-timeout mymaster 10000
@@ -314,6 +318,8 @@ services:
     image: redis:7.2
     command: >
       redis-sentinel
+      --sentinel resolve-hostnames yes
+      --sentinel announce-hostnames yes
       --sentinel monitor mymaster redis-master 6379 2
       --sentinel down-after-milliseconds mymaster 5000
       --sentinel failover-timeout mymaster 10000

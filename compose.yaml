@@ -227,116 +227,12 @@
 #   zookeeper-log:
 #   kafka-data:
 
-# version: "3.9"
-
-# services:
-#   redis-master:
-#     image: redis:7.2
-#     container_name: redis-master
-#     command: redis-server /redis/redis-master.conf
-#     volumes:
-#       - ./redis:/redis:ro
-#       - redis-data:/data
-#     networks:
-#       - backend
-#     healthcheck:
-#       test: ["CMD", "redis-cli", "ping"]
-#       interval: 10s
-#       timeout: 5s
-#       retries: 5
-#       start_period: 20s
-
-#   redis-replica-1:
-#     image: redis:7.2
-#     command: redis-server /redis/redis-replica.conf
-#     volumes:
-#       - ./redis:/redis:ro
-#       - redis-replica-1-data:/data
-#     depends_on:
-#       redis-master:
-#         condition: service_healthy
-#     networks:
-#       - backend
-
-#   redis-replica-2:
-#     image: redis:7.2
-#     command: redis-server /redis/redis-replica.conf
-#     volumes:
-#       - ./redis:/redis:ro
-#       - redis-replica-2-data:/data
-#     depends_on:
-#       redis-master:
-#         condition: service_healthy
-#     networks:
-#       - backend
-
-#   sentinel-1:
-#     image: redis:7.2
-#     command: >
-#       redis-sentinel
-#       --sentinel monitor mymaster redis-master 6379 2
-#       --sentinel down-after-milliseconds mymaster 5000
-#       --sentinel failover-timeout mymaster 10000
-#     volumes:
-#       - sentinel-1-data:/data
-#     depends_on:
-#       redis-master:
-#         condition: service_healthy
-#     networks:
-#       - backend
-#     healthcheck:
-#       test: ["CMD", "redis-cli", "-p", "26379", "ping"]
-#       interval: 10s
-#       timeout: 5s
-#       retries: 5
-
-#   sentinel-2:
-#     image: redis:7.2
-#     command: >
-#       redis-sentinel
-#       --sentinel monitor mymaster redis-master 6379 2
-#       --sentinel down-after-milliseconds mymaster 5000
-#       --sentinel failover-timeout mymaster 10000
-#     volumes:
-#       - sentinel-2-data:/data
-#     depends_on:
-#       redis-master:
-#         condition: service_healthy
-#     networks:
-#       - backend
-#     healthcheck:
-#       test: ["CMD", "redis-cli", "-p", "26379", "ping"]
-#       interval: 10s
-#       timeout: 5s
-#       retries: 5
-
-#   sentinel-3:
-#     image: redis:7.2
-#     command: >
-#       redis-sentinel
-#       --sentinel monitor mymaster redis-master 6379 2
-#       --sentinel down-after-milliseconds mymaster 5000
-#       --sentinel failover-timeout mymaster 10000
-#     volumes:
-#       - sentinel-3-data:/data
-#     depends_on:
-#       redis-master:
-#         condition: service_healthy
-#     networks:
-#       - backend
-#     healthcheck:
-#       test: ["CMD", "redis-cli", "-p", "26379", "ping"]
-#       interval: 10s
-#       timeout: 5s
-#       retries: 5
-
 version: "3.9"
 
 services:
   redis-master:
     image: redis:7.2
     container_name: redis-master
-    hostname: redis-master
     command: redis-server /redis/redis-master.conf
     volumes:
       - ./redis:/redis:ro
@@ -376,10 +272,12 @@ services:
 
   sentinel-1:
     image: redis:7.2
-    container_name: sentinel-1
-    command: redis-sentinel /redis/sentinel.conf
+    command: >
+      redis-sentinel
+      --sentinel monitor mymaster redis-master 6379 2
+      --sentinel down-after-milliseconds mymaster 5000
+      --sentinel failover-timeout mymaster 10000
     volumes:
-      - ./redis:/redis:ro
       - sentinel-1-data:/data
     depends_on:
       redis-master:
@@ -394,29 +292,43 @@ services:
 
   sentinel-2:
     image: redis:7.2
-    container_name: sentinel-2
-    command: redis-sentinel /redis/sentinel.conf
+    command: >
+      redis-sentinel
+      --sentinel monitor mymaster redis-master 6379 2
+      --sentinel down-after-milliseconds mymaster 5000
+      --sentinel failover-timeout mymaster 10000
     volumes:
-      - ./redis:/redis:ro
       - sentinel-2-data:/data
     depends_on:
       redis-master:
         condition: service_healthy
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   sentinel-3:
     image: redis:7.2
-    container_name: sentinel-3
-    command: redis-sentinel /redis/sentinel.conf
+    command: >
+      redis-sentinel
+      --sentinel monitor mymaster redis-master 6379 2
+      --sentinel down-after-milliseconds mymaster 5000
+      --sentinel failover-timeout mymaster 10000
     volumes:
-      - ./redis:/redis:ro
       - sentinel-3-data:/data
     depends_on:
       redis-master:
         condition: service_healthy
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # =========================
   # ZOOKEEPER

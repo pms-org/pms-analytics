@@ -35,7 +35,6 @@ public class BatchProcessingService {
 
     @Transactional
     public void processBatch(List<Transaction> messages) {
-        // Batch processing logic goes here
         System.out.println("Processing batch of " + messages.size() + " transactions.");
 
         BatchResult result = transactionService.processBatchInTransaction(messages);

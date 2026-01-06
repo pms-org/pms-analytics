@@ -3,11 +3,11 @@ syntax = "proto3";
 package com.pms.analytics.dto;
 
 message Transaction {
-    string transactionId = 1;
-    string portfolioId = 2;
-    string symbol = 3;
-    string side = 4;
-    string buyPrice = 5;
-    string sellPrice = 6;
-    int64 quantity = 7;
+  string transactionId = 1; 
+  string portfolioId = 2;
+  string symbol = 3;
+  string side =4;
+  string buyPrice = 5;
+  string sellPrice = 6;
+  int64 quantity = 7;
 }

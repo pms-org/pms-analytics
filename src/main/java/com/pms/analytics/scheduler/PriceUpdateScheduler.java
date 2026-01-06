@@ -33,7 +33,7 @@ public class PriceUpdateScheduler {
     @Autowired
     RiskMetricsCalculator riskMetrics;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 30000)
     public void refreshPrices() {
 
         List<String> symbols = analysisDao.findAllSymbols();

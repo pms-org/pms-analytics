@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,8 +31,9 @@ public class ApiController {
         apiService.getUnrealizedPnl();
     }
 
-    @GetMapping("/portfolio_value/history")
-    public ResponseEntity<List<PortfolioValueHistoryEntity>> getPortfolioValueHistoryById(UUID portfolioId){
+    //put path variable
+    @GetMapping("/portfolio_value/history/{portfolioId}")
+    public ResponseEntity<List<PortfolioValueHistoryEntity>> getPortfolioValueHistoryById(@PathVariable UUID portfolioId){
         return ResponseEntity.ok(apiService.getAllHistoryById(portfolioId));
     }
 }

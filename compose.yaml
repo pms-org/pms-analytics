@@ -230,16 +230,13 @@
 version: "3.9"
 
 services:
-  # =========================
-  # REDIS MASTER
-  # =========================
   redis-master:
     image: redis:7.2
     container_name: redis-master
-    command: ["redis-server", "/redis/redis-master.conf"]
+    command: redis-server /redis/redis-master.conf
     volumes:
-      - ./redis/redis-master.conf:/redis/redis-master.conf:ro
-      - redis-master-data:/data
+      - ./redis:/redis:ro
+      - redis-data:/data
     networks:
       - backend
     healthcheck:
@@ -247,16 +244,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
 
-  # =========================
-  # REDIS REPLICAS
-  # =========================
   redis-replica-1:
     image: redis:7.2
-    container_name: redis-replica-1
-    command: ["redis-server", "/redis/redis-replica.conf"]
+    command: redis-server /redis/redis-replica.conf
     volumes:
-      - ./redis/redis-replica.conf:/redis/redis-replica.conf:ro
+      - ./redis:/redis:ro
       - redis-replica-1-data:/data
     depends_on:
       redis-master:
@@ -266,10 +260,9 @@ services:
 
   redis-replica-2:
     image: redis:7.2
-    container_name: redis-replica-2
-    command: ["redis-server", "/redis/redis-replica.conf"]
+    command: redis-server /redis/redis-replica.conf
     volumes:
-      - ./redis/redis-replica.conf:/redis/redis-replica.conf:ro
+      - ./redis:/redis:ro
       - redis-replica-2-data:/data
     depends_on:
       redis-master:
@@ -277,19 +270,13 @@ services:
     networks:
       - backend
 
-  # =========================
-  # REDIS SENTINELS (CORRECT WAY)
-  # =========================
   sentinel-1:
     image: redis:7.2
-    container_name: sentinel-1
     command: >
       redis-sentinel
       --sentinel monitor mymaster redis-master 6379 2
       --sentinel down-after-milliseconds mymaster 5000
       --sentinel failover-timeout mymaster 10000
-      --sentinel resolve-hostnames yes
-      --sentinel announce-hostnames yes
     volumes:
       - sentinel-1-data:/data
     depends_on:
@@ -305,14 +292,11 @@ services:
 
   sentinel-2:
     image: redis:7.2
-    container_name: sentinel-2
     command: >
       redis-sentinel
       --sentinel monitor mymaster redis-master 6379 2
       --sentinel down-after-milliseconds mymaster 5000
       --sentinel failover-timeout mymaster 10000
-      --sentinel resolve-hostnames yes
-      --sentinel announce-hostnames yes
     volumes:
       - sentinel-2-data:/data
     depends_on:
@@ -328,14 +312,11 @@ services:
 
   sentinel-3:
     image: redis:7.2
-    container_name: sentinel-3
     command: >
       redis-sentinel
       --sentinel monitor mymaster redis-master 6379 2
       --sentinel down-after-milliseconds mymaster 5000
       --sentinel failover-timeout mymaster 10000
-      --sentinel resolve-hostnames yes
-      --sentinel announce-hostnames yes
     volumes:
       - sentinel-3-data:/data
     depends_on:

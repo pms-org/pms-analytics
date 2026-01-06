@@ -347,7 +347,7 @@ services:
       - zookeeper-data:/var/lib/zookeeper/data
       - zookeeper-log:/var/lib/zookeeper/log
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo ruok | nc localhost 2181 | grep imok"]
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
       interval: 10s
       timeout: 5s
       retries: 5

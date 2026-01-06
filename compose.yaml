@@ -1,11 +1,245 @@
+# services:
+#   redis-master:
+#     image: redis:latest
+#     container_name: redis-master
+#     command: redis-server /redis/redis-master.conf
+#     volumes:
+#       - ./redis:/redis
+#       - redis-data:/data
+#     networks:
+#       - backend
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "ping"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+#       start_period: 20s
+
+#   redis-replica-1:
+#     image: redis:latest
+#     command: redis-server /redis/redis-replica.conf
+#     volumes:
+#       - ./redis:/redis
+#       - redis-replica-1-data:/data
+#     depends_on:
+#       redis-master:
+#         condition: service_healthy
+#     networks:
+#       - backend
+
+#   redis-replica-2:
+#     image: redis:latest
+#     command: redis-server /redis/redis-replica.conf
+#     volumes:
+#       - ./redis:/redis
+#       - redis-replica-2-data:/data
+#     depends_on:
+#       redis-master:
+#         condition: service_healthy
+#     networks:
+#       - backend
+
+#   sentinel-1:
+#     image: redis:latest
+#     command: redis-sentinel /redis/sentinel.conf
+#     volumes:
+#       - ./redis:/redis
+#     depends_on:
+#       redis-master:
+#         condition: service_healthy
+#     networks:
+#       - backend
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+
+#   sentinel-2:
+#     image: redis:latest
+#     command: redis-sentinel /redis/sentinel.conf
+#     volumes:
+#       - ./redis:/redis
+#     depends_on:
+#       redis-master:
+#         condition: service_healthy
+#     networks:
+#       - backend
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+
+#   sentinel-3:
+#     image: redis:latest
+#     command: redis-sentinel /redis/sentinel.conf
+#     volumes:
+#       - ./redis:/redis
+#     depends_on:
+#       redis-master:
+#         condition: service_healthy
+#     networks:
+#       - backend
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+
+#   zookeeper:
+#     image: confluentinc/cp-zookeeper:7.6.0
+#     container_name: zookeeper
+#     environment:
+#       ZOOKEEPER_CLIENT_PORT: 2181
+#       ZOOKEEPER_TICK_TIME: 2000
+#     ports:
+#       - "2181:2181"
+#     networks:
+#       - backend
+#     volumes:
+#       - zookeeper-data:/var/lib/zookeeper/data
+#       - zookeeper-log:/var/lib/zookeeper/log
+#     healthcheck:
+#       test: ["CMD-SHELL", "echo ruok > /dev/tcp/localhost/2181 && echo imok"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+
+#   kafka:
+#     image: confluentinc/cp-kafka:7.6.0
+#     container_name: kafka
+#     depends_on:
+#       zookeeper:
+#         condition: service_healthy
+#     ports:
+#       - "9092:9092"
+#       - "29092:29092"
+#     environment:
+#       KAFKA_BROKER_ID: 1
+#       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+#       KAFKA_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://0.0.0.0:9092
+#       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+#       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+#       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+#       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+#       KAFKA_LOG_DIRS: /var/lib/kafka/data
+#     networks:
+#       - backend
+#     volumes:
+#       - kafka-data:/var/lib/kafka/data
+#     healthcheck:
+#       test:
+#         [
+#           "CMD-SHELL",
+#           "kafka-broker-api-versions --bootstrap-server localhost:9092 >/dev/null 2>&1",
+#         ]
+#       interval: 20s
+#       timeout: 10s
+#       retries: 10
+#       start_period: 60s
+
+#   schema-registry:
+#     image: confluentinc/cp-schema-registry:7.6.0
+#     container_name: schema-registry
+#     depends_on:
+#       kafka:
+#         condition: service_healthy
+#     ports:
+#       - "8081:8081"
+#     environment:
+#       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
+#       SCHEMA_REGISTRY_HOST_NAME: schema-registry
+#       SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+#     networks:
+#       - backend
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:8081/subjects"]
+#       interval: 15s
+#       timeout: 5s
+#       retries: 5
+
+#   analytics-app-1:
+#     # build: .
+#     image: sboomisnow/analytics-service:latest
+#     container_name: analytics-app-1
+#     depends_on:
+#       sentinel-1:
+#         condition: service_healthy
+#       sentinel-2:
+#         condition: service_healthy
+#       sentinel-3:
+#         condition: service_healthy
+#       kafka:
+#         condition: service_healthy
+#       schema-registry:
+#         condition: service_healthy
+#     env_file:
+#       - .env
+#     ports:
+#       - "8082:8082"
+#     networks:
+#       - backend
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+#       interval: 20s
+#       timeout: 5s
+#       retries: 5
+
+#   analytics-app-2:
+#     # build: .
+#     image: sboomisnow/analytics-service:latest
+#     container_name: analytics-app-2
+#     depends_on:
+#       sentinel-1:
+#         condition: service_healthy
+#       sentinel-2:
+#         condition: service_healthy
+#       sentinel-3:
+#         condition: service_healthy
+#       kafka:
+#         condition: service_healthy
+#       schema-registry:
+#         condition: service_healthy
+#     env_file:
+#       - .env
+#     ports:
+#       - "8083:8082"
+#     networks:
+#       - backend
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+#       interval: 20s
+#       timeout: 5s
+#       retries: 5
+
+# networks:
+#   backend:
+#     driver: bridge
+
+# volumes:
+#   redis-data:
+#   redis-replica-1-data:
+#   redis-replica-2-data:
+#   zookeeper-data:
+#   zookeeper-log:
+#   kafka-data:
+
+version: "3.9"
+
 services:
+  # =========================
+  # REDIS MASTER
+  # =========================
   redis-master:
-    image: redis:latest
+    image: redis:7.2
     container_name: redis-master
-    command: redis-server /redis/redis-master.conf
+    command: ["redis-server", "/redis/redis-master.conf"]
     volumes:
-      - ./redis:/redis
-      - redis-data:/data
+      - ./redis/redis-master.conf:/redis/redis-master.conf:ro
+      - redis-master-data:/data
     networks:
       - backend
     healthcheck:
@@ -13,13 +247,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 20s
 
+  # =========================
+  # REDIS REPLICAS
+  # =========================
   redis-replica-1:
-    image: redis:latest
-    command: redis-server /redis/redis-replica.conf
+    image: redis:7.2
+    container_name: redis-replica-1
+    command: ["redis-server", "/redis/redis-replica.conf"]
     volumes:
-      - ./redis:/redis
+      - ./redis/redis-replica.conf:/redis/redis-replica.conf:ro
       - redis-replica-1-data:/data
     depends_on:
       redis-master:
@@ -28,10 +265,11 @@ services:
       - backend
 
   redis-replica-2:
-    image: redis:latest
-    command: redis-server /redis/redis-replica.conf
+    image: redis:7.2
+    container_name: redis-replica-2
+    command: ["redis-server", "/redis/redis-replica.conf"]
     volumes:
-      - ./redis:/redis
+      - ./redis/redis-replica.conf:/redis/redis-replica.conf:ro
       - redis-replica-2-data:/data
     depends_on:
       redis-master:
@@ -39,11 +277,21 @@ services:
     networks:
       - backend
 
+  # =========================
+  # REDIS SENTINELS (CORRECT WAY)
+  # =========================
   sentinel-1:
-    image: redis:latest
-    command: redis-sentinel /redis/sentinel.conf
+    image: redis:7.2
+    container_name: sentinel-1
+    command: >
+      redis-sentinel
+      --sentinel monitor mymaster redis-master 6379 2
+      --sentinel down-after-milliseconds mymaster 5000
+      --sentinel failover-timeout mymaster 10000
+      --sentinel resolve-hostnames yes
+      --sentinel announce-hostnames yes
     volumes:
-      - ./redis:/redis
+      - sentinel-1-data:/data
     depends_on:
       redis-master:
         condition: service_healthy
@@ -56,10 +304,17 @@ services:
       retries: 5
 
   sentinel-2:
-    image: redis:latest
-    command: redis-sentinel /redis/sentinel.conf
+    image: redis:7.2
+    container_name: sentinel-2
+    command: >
+      redis-sentinel
+      --sentinel monitor mymaster redis-master 6379 2
+      --sentinel down-after-milliseconds mymaster 5000
+      --sentinel failover-timeout mymaster 10000
+      --sentinel resolve-hostnames yes
+      --sentinel announce-hostnames yes
     volumes:
-      - ./redis:/redis
+      - sentinel-2-data:/data
     depends_on:
       redis-master:
         condition: service_healthy
@@ -72,10 +327,17 @@ services:
       retries: 5
 
   sentinel-3:
-    image: redis:latest
-    command: redis-sentinel /redis/sentinel.conf
+    image: redis:7.2
+    container_name: sentinel-3
+    command: >
+      redis-sentinel
+      --sentinel monitor mymaster redis-master 6379 2
+      --sentinel down-after-milliseconds mymaster 5000
+      --sentinel failover-timeout mymaster 10000
+      --sentinel resolve-hostnames yes
+      --sentinel announce-hostnames yes
     volumes:
-      - ./redis:/redis
+      - sentinel-3-data:/data
     depends_on:
       redis-master:
         condition: service_healthy
@@ -87,6 +349,9 @@ services:
       timeout: 5s
       retries: 5
 
+  # =========================
+  # ZOOKEEPER
+  # =========================
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
     container_name: zookeeper
@@ -95,17 +360,20 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
-    networks:
-      - backend
     volumes:
       - zookeeper-data:/var/lib/zookeeper/data
       - zookeeper-log:/var/lib/zookeeper/log
+    networks:
+      - backend
     healthcheck:
-      test: ["CMD-SHELL", "echo ruok > /dev/tcp/localhost/2181 && echo imok"]
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # =========================
+  # KAFKA
+  # =========================
   kafka:
     image: confluentinc/cp-kafka:7.6.0
     container_name: kafka
@@ -118,29 +386,28 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_LOG_DIRS: /var/lib/kafka/data
-    networks:
-      - backend
     volumes:
       - kafka-data:/var/lib/kafka/data
+    networks:
+      - backend
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "kafka-broker-api-versions --bootstrap-server localhost:9092 >/dev/null 2>&1",
+          "kafka-broker-api-versions --bootstrap-server localhost:9092 >/dev/null",
         ]
       interval: 20s
       timeout: 10s
       retries: 10
-      start_period: 60s
 
+  # =========================
+  # SCHEMA REGISTRY
+  # =========================
   schema-registry:
     image: confluentinc/cp-schema-registry:7.6.0
     container_name: schema-registry
@@ -150,9 +417,9 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
     networks:
       - backend
     healthcheck:
@@ -161,68 +428,48 @@ services:
       timeout: 5s
       retries: 5
 
+  # =========================
+  # ANALYTICS APPS
+  # =========================
   analytics-app-1:
-    # build: .
     image: sboomisnow/analytics-service:latest
     container_name: analytics-app-1
-    depends_on:
-      sentinel-1:
-        condition: service_healthy
-      sentinel-2:
-        condition: service_healthy
-      sentinel-3:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      schema-registry:
-        condition: service_healthy
-    env_file:
-      - .env
+    env_file: [.env]
     ports:
       - "8082:8082"
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
-      interval: 20s
-      timeout: 5s
-      retries: 5
-
-  analytics-app-2:
-    # build: .
-    image: sboomisnow/analytics-service:latest
-    container_name: analytics-app-2
     depends_on:
       sentinel-1:
         condition: service_healthy
-      sentinel-2:
+      kafka:
         condition: service_healthy
-      sentinel-3:
+    networks:
+      - backend
+
+  analytics-app-2:
+    image: sboomisnow/analytics-service:latest
+    container_name: analytics-app-2
+    env_file: [.env]
+    ports:
+      - "8083:8082"
+    depends_on:
+      sentinel-1:
         condition: service_healthy
       kafka:
         condition: service_healthy
-      schema-registry:
-        condition: service_healthy
-    env_file:
-      - .env
-    ports:
-      - "8083:8082"
     networks:
       - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
-      interval: 20s
-      timeout: 5s
-      retries: 5
 
 networks:
   backend:
     driver: bridge
 
 volumes:
-  redis-data:
+  redis-master-data:
   redis-replica-1-data:
   redis-replica-2-data:
+  sentinel-1-data:
+  sentinel-2-data:
+  sentinel-3-data:
   zookeeper-data:
   zookeeper-log:
   kafka-data:

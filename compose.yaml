@@ -273,13 +273,14 @@ services:
   sentinel-1:
     image: redis:7.2
     command: >
-      redis-sentinel
+      redis-sentinel /redis/sentinel/sentinel-1.conf
       --sentinel resolve-hostnames yes
       --sentinel announce-hostnames yes
       --sentinel monitor mymaster redis-master 6379 2
       --sentinel down-after-milliseconds mymaster 5000
       --sentinel failover-timeout mymaster 10000
     volumes:
+      - ./redis/sentinel/sentinel-1.conf:/redis/sentinel/sentinel-1.conf
       - sentinel-1-data:/data
     depends_on:
       redis-master:
@@ -295,13 +296,14 @@ services:
   sentinel-2:
     image: redis:7.2
     command: >
-      redis-sentinel
+      redis-sentinel /redis/sentinel/sentinel-2.conf
       --sentinel resolve-hostnames yes
       --sentinel announce-hostnames yes
       --sentinel monitor mymaster redis-master 6379 2
       --sentinel down-after-milliseconds mymaster 5000
       --sentinel failover-timeout mymaster 10000
     volumes:
+      - ./redis/sentinel/sentinel-2.conf:/redis/sentinel/sentinel-2.conf
       - sentinel-2-data:/data
     depends_on:
       redis-master:
@@ -317,13 +319,14 @@ services:
   sentinel-3:
     image: redis:7.2
     command: >
-      redis-sentinel
+      redis-sentinel /redis/sentinel/sentinel-3.conf
       --sentinel resolve-hostnames yes
       --sentinel announce-hostnames yes
       --sentinel monitor mymaster redis-master 6379 2
       --sentinel down-after-milliseconds mymaster 5000
       --sentinel failover-timeout mymaster 10000
     volumes:
+      - ./redis/sentinel/sentinel-1.conf:/redis/sentinel/sentinel-3.conf
       - sentinel-3-data:/data
     depends_on:
       redis-master:

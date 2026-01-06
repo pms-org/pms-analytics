@@ -333,25 +333,25 @@ services:
   # =========================
   # ZOOKEEPER
   # =========================
-zookeeper:
-  image: confluentinc/cp-zookeeper:7.6.0
-  container_name: zookeeper
-  environment:
-    ZOOKEEPER_CLIENT_PORT: 2181
-    ZOOKEEPER_TICK_TIME: 2000
-  ports:
-    - "2181:2181"
-  networks:
-    - backend
-  volumes:
-    - zookeeper-data:/var/lib/zookeeper/data
-    - zookeeper-log:/var/lib/zookeeper/log
-  healthcheck:
-    test: ["CMD", "bash", "-c", "echo ruok | nc localhost 2181 | grep imok"]
-    interval: 10s
-    timeout: 5s
-    retries: 5
-    start_period: 20s
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - backend
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo ruok | nc localhost 2181 | grep imok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   # =========================
   # KAFKA

@@ -10,9 +10,9 @@ pipeline {
         DOCKERHUB_REPO = "sboomisnow/analytics-service"
         IMAGE_TAG = "latest"
 
-        EC2_IP      = "18.118.149.115"
-        EC2_HOST    = "ubuntu@18.118.149.115"
-        SERVER_URL  = "http://18.118.149.115:8082/swagger-ui/index.html"
+        EC2_IP     = "18.118.149.115"
+        EC2_HOST   = "ubuntu@18.118.149.115"
+        SERVER_URL = "http://18.118.149.115:8082/swagger-ui/index.html"
     }
 
     stages {
@@ -38,9 +38,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                docker build -t $DOCKERHUB_REPO:$IMAGE_TAG .
-                """
+                sh "docker build -t $DOCKERHUB_REPO:$IMAGE_TAG ."
             }
         }
 
@@ -54,8 +52,8 @@ pipeline {
                     )
                 ]) {
                     sh """
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                    docker push $DOCKERHUB_REPO:$IMAGE_TAG
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $DOCKERHUB_REPO:$IMAGE_TAG
                     """
                 }
             }
@@ -68,11 +66,13 @@ pipeline {
                         file(credentialsId: 'analytics-env-file', variable: 'ENV_FILE')
                     ]) {
 
-                        // Ensure target directories exist
+                        // Prepare redis directory
                         sh """
-                        ssh -o StrictHostKeyChecking=no $EC2_HOST "
-                            mkdir -p /home/ubuntu/redis
-                        "
+                        ssh -o StrictHostKeyChecking=no $EC2_HOST '
+                            sudo rm -rf /home/ubuntu/redis &&
+                            mkdir -p /home/ubuntu/redis &&
+                            sudo chown -R ubuntu:ubuntu /home/ubuntu
+                        '
                         """
 
                         // Copy docker compose file
@@ -82,28 +82,14 @@ pipeline {
                             $EC2_HOST:/home/ubuntu/compose.yaml
                         """
 
-                        // Copy redis config directory
-                        // 1. Clean & prepare directory
+                        // Copy redis configs
                         sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST \
-                          'sudo rm -rf /home/ubuntu/redis &&
-                           mkdir -p /home/ubuntu/redis &&
-                           sudo chown -R ubuntu:ubuntu /home/ubuntu'
-                        """
-
-                        // 2. Copy redis configs
-                        sh """
-                        scp -o StrictHostKeyChecking=no -r redis \
+                        scp -o StrictHostKeyChecking=no -r \
+                            redis \
                             $EC2_HOST:/home/ubuntu/
                         """
 
-                        // 3. Fix permissions again (safety)
-                        sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST \
-                          'sudo chown -R ubuntu:ubuntu /home/ubuntu/redis'
-                        """
-
-                        // Copy .env file from Jenkins credentials
+                        // Copy .env file
                         sh """
                         scp -o StrictHostKeyChecking=no \
                             "$ENV_FILE" \
@@ -112,22 +98,19 @@ pipeline {
 
                         // Deploy containers
                         sh """
-                        ssh -o StrictHostKeyChecking=no $EC2_HOST "
-                            cd /home/ubuntu &&
-                            docker compose down -v --remove-orphans &&
+                        ssh -o StrictHostKeyChecking=no $EC2_HOST '
                             cd /home/ubuntu &&
                             docker compose down -v --remove-orphans &&
                             docker pull $DOCKERHUB_REPO:$IMAGE_TAG &&
                             docker compose up -d &&
                             docker ps
-                        "
+                        '
                         """
                     }
                 }
             }
         }
     }
-
 
     post {
         success {

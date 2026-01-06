@@ -80,7 +80,7 @@ public class UnrealizedPnlCalculator {
                         BigDecimal unrealized = currentPrice.subtract(buyPrice)
                                 .multiply(BigDecimal.valueOf(remainingQty));
 
-                        // Add to per-symbol bucket
+                        // Add to per-symbol
                         symbolUnrealized.put(symbol,
                                 symbolUnrealized.getOrDefault(symbol, BigDecimal.ZERO).add(unrealized));
 

@@ -94,7 +94,7 @@ pipeline {
                         // 2. Copy redis configs
                         sh """
                         scp -o StrictHostKeyChecking=no -r redis \
-                            ubuntu@$EC2_HOST:/home/ubuntu/
+                            $EC2_HOST:/home/ubuntu/
                         """
 
                         // 3. Fix permissions again (safety)
@@ -115,6 +115,8 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no $EC2_HOST "
                             cd /home/ubuntu &&
                             docker compose down -v --remove-orphans &&
+                            cd /home/ubuntu &&
+                            docker compose down -v --remove-orphans &&
                             docker pull $DOCKERHUB_REPO:$IMAGE_TAG &&
                             docker compose up -d &&
                             docker ps
@@ -125,6 +127,7 @@ pipeline {
             }
         }
     }
+
 
     post {
         success {

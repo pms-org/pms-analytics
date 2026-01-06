@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.data.domain.PageRequest;
@@ -36,7 +35,7 @@ public class EventPublisher {
     private static final String TOPIC = "portfolio-risk-metrics";
     private static final int BATCH_SIZE = 50;
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedDelay = 5000)
     public void publishPendingEvents() {
 
         Pageable pageable = PageRequest.of(0, BATCH_SIZE);

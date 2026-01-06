@@ -24,7 +24,7 @@ public class PortfolioValueScheduler {
     private final RedisPriceCache priceCache;
     private final PortfolioValueHistoryDao historyDao;
 
-    @Scheduled(cron = "0 20 12 * * ?", zone = "Asia/Kolkata")
+    @Scheduled(cron = "0 59 23 * * ?", zone = "Asia/Kolkata")
     public void calculatePortfolioValue() {
 
         List<AnalysisEntity> positions = analysisDao.findAll();

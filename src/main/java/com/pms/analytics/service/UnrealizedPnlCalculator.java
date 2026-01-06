@@ -2,6 +2,7 @@ package com.pms.analytics.service;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,8 @@ public class UnrealizedPnlCalculator {
             log.info("Calculating Unrealized pnl ...");
             List<UUID> portfolioIds =
                     transactionsDao.findDistinctPortfolioIdsWithOpenPositions();
+
+            List<UnrealizedPnlDto> unrealizedPnlDtos = new ArrayList<>();
 
             for (UUID portfolioId : portfolioIds) {
 
@@ -104,15 +107,17 @@ public class UnrealizedPnlCalculator {
                         portfolioId.toString()
                 );
 
-                // log.info("Calculated unrealized pnl {}.",payload);
+                log.info("Calculated unrealized pnl {}.",payload);
 
-                try {
-                    messagingTemplate.convertAndSend("/topic/unrealized-pnl", payload);
-                    log.info("New unrealized p&l sent to web socket.",payload);
+                unrealizedPnlDtos.add(payload);
+            }
+
+            try {
+                    messagingTemplate.convertAndSend("/topic/unrealized-pnl", unrealizedPnlDtos);
+                    log.info("New unrealized p&l sent to web socket.",unrealizedPnlDtos);
                 } catch (Exception e) {
                     System.err.println("Failed to send unrealized PnL: " + e.getMessage());
                 }
-            }
 
         } catch (Exception e) {
             System.err.println("Scheduler failed: " + e.getMessage());

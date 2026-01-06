@@ -18,10 +18,12 @@ import com.pms.analytics.externalRedis.ExternalPriceClient;
 import com.pms.analytics.externalRedis.RedisPriceCache;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UnrealizedPnlCalculator {
 
     private final TransactionsDao transactionsDao;
@@ -34,6 +36,7 @@ public class UnrealizedPnlCalculator {
     public void computeUnRealisedPnlAndBroadcast() {
 
         try {
+            log.info("Calculating Unrealized pnl ...");
             List<UUID> portfolioIds =
                     transactionsDao.findDistinctPortfolioIdsWithOpenPositions();
 
@@ -42,6 +45,8 @@ public class UnrealizedPnlCalculator {
                 // fetch open transactions for portfolio
                 List<TransactionsEntity> openTxns =
                         transactionsDao.findOpenPositionsByPortfolioId(portfolioId);
+
+                log.info("Fetched {} open positions from transaction.",openTxns.size());
 
                 if (openTxns.isEmpty()) continue;
 
@@ -68,7 +73,7 @@ public class UnrealizedPnlCalculator {
                                 Mono<BigDecimal> monoPrice = externalPriceClient.fetchPriceAsync(symbol);
                                 currentPrice = monoPrice.block(Duration.ofSeconds(3));
                             } catch (Exception ignored) {
-                                
+                                log.error("Cannot fetch price from external client");
                             }
                         }
 
@@ -99,8 +104,11 @@ public class UnrealizedPnlCalculator {
                         portfolioId.toString()
                 );
 
+                // log.info("Calculated unrealized pnl {}.",payload);
+
                 try {
                     messagingTemplate.convertAndSend("/topic/unrealized-pnl", payload);
+                    log.info("New unrealized p&l sent to web socket.",payload);
                 } catch (Exception e) {
                     System.err.println("Failed to send unrealized PnL: " + e.getMessage());
                 }

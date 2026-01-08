@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.pms.analytics.dao.AnalysisDao;
 import com.pms.analytics.dao.AnalysisOutboxDao;
+import com.pms.analytics.dao.PortfolioRiskStatusDao;
 import com.pms.analytics.dao.entity.AnalysisOutbox;
 
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,8 @@ public class RiskMetricsCalculator {
     private final AnalysisDao analysisDao;
     private final RiskMetricsService riskMetricsService;
     private final AnalysisOutboxDao analysisOutboxDao;
+    
 
-    @Transactional
     public void computeRiskMetricsForAllPortfolios() {
         // Fetch all portfolio IDs from AnalysisDao
         List<UUID> portfolioIds = analysisDao.findAll().stream()
@@ -42,9 +43,10 @@ public class RiskMetricsCalculator {
         System.out.println("[Scheduler] Computing risk metrics for " + portfolioIds.size() + " portfolios...");
 
         // Compute risk metrics for each portfolio
-        portfolioIds.forEach(portfolioId -> {
-            riskMetricsService.computeRiskEvent(portfolioId, batchedOutboxEntries);
-        });
+        for(UUID portfolioId : portfolioIds)
+        {
+            riskMetricsService.computeRiskForSinglePortfolio(portfolioId, batchedOutboxEntries);
+        };
 
         //save as batch here in outbox
         log.info("Saving {} records in outbox.",batchedOutboxEntries.size());

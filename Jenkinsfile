@@ -78,7 +78,7 @@ pipeline {
                         // Copy docker compose file
                         sh """
                         scp -o StrictHostKeyChecking=no \
-                            compose.yaml \
+                            compose-prod.yaml \
                             $EC2_HOST:/home/ubuntu/compose.yaml
                         """
 

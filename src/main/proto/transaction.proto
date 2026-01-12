@@ -6,7 +6,7 @@ message Transaction {
   string transactionId = 1; 
   string portfolioId = 2;
   string symbol = 3;
-  string side =4;
+  string side = 4;
   string buyPrice = 5;
   string sellPrice = 6;
   int64 quantity = 7;

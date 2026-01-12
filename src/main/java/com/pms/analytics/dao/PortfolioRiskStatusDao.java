@@ -18,7 +18,7 @@ public class PortfolioRiskStatusDao {
             SELECT COUNT(*)
             FROM analytics_portfolio_risk_status
             WHERE portfolio_id = ?
-              AND last_computed_at > now() - interval '1 minute'
+              AND last_computed_at > now() - interval '30 seconds'
         """, Integer.class, portfolioId);
 
         return count != null && count > 0;

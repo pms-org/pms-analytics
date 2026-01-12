@@ -9,15 +9,16 @@ import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class PortfolioUnrealizedPnlStatusDao {
+public class PortfolioValueStatusDao {
+    
     private final JdbcTemplate jdbcTemplate;
 
     public boolean computedRecently(UUID portfolioId) {
         Integer count = jdbcTemplate.queryForObject("""
             SELECT COUNT(*)
-            FROM analytics_portfolio_unrealizedpnl_status
+            FROM analytics_portfolio_value_status
             WHERE portfolio_id = ?
-              AND last_computed_at > now() - interval '30 seconds'
+              AND last_computed_at > now() - interval '23 hours'
         """, Integer.class, portfolioId);
 
         return count != null && count > 0;
@@ -26,7 +27,7 @@ public class PortfolioUnrealizedPnlStatusDao {
     public boolean tryAdvisoryLock(UUID portfolioId) {
         return Boolean.TRUE.equals(
                 jdbcTemplate.queryForObject(
-                        "SELECT pg_try_advisory_xact_lock(hashtext('UNREALIZED_PNL:' || ?))::boolean",
+                        "SELECT pg_try_advisory_xact_lock(hashtext('PORTFOLIO_VALUE:' || ?))::boolean",
                         Boolean.class,
                         portfolioId.toString()
                 )
@@ -35,7 +36,7 @@ public class PortfolioUnrealizedPnlStatusDao {
 
     public void updateLastComputed(UUID portfolioId) {
         jdbcTemplate.update("""
-            INSERT INTO analytics_portfolio_unrealizedpnl_status(portfolio_id, last_computed_at)
+            INSERT INTO analytics_portfolio_value_status (portfolio_id, last_computed_at)
             VALUES (?, now())
             ON CONFLICT (portfolio_id)
             DO UPDATE SET last_computed_at = now()

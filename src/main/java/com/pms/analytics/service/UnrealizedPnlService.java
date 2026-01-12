@@ -92,9 +92,10 @@ public class UnrealizedPnlService {
                 Long remainingQty = txn.getQuantity();
                 BigDecimal buyPrice = txn.getBuyPrice();
 
-                // if (remainingQty <= 0 || buyPrice == null) {
-                //     continue;
-                // }
+                if (remainingQty <= 0) {
+                    log.info("Tnx quantity is less than zero,so skipping the tnx.");
+                    continue;
+                }
 
                 // get current price
                 BigDecimal currentPrice = priceCache.getPrice(symbol);

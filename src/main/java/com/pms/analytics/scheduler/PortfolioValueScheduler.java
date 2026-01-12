@@ -7,23 +7,29 @@ import java.util.Map;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pms.analytics.dao.AnalysisDao;
 import com.pms.analytics.dao.PortfolioValueHistoryDao;
+import com.pms.analytics.dao.PortfolioValueStatusDao;
 import com.pms.analytics.dao.entity.AnalysisEntity;
 import com.pms.analytics.dao.entity.PortfolioValueHistoryEntity;
 import com.pms.analytics.externalRedis.RedisPriceCache;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PortfolioValueScheduler {
 
     private final AnalysisDao analysisDao;
     private final RedisPriceCache priceCache;
     private final PortfolioValueHistoryDao historyDao;
-
+    private final PortfolioValueStatusDao portfolioValueStatusDao;
+    
+    @Transactional
     @Scheduled(cron = "0 59 23 * * ?", zone = "Asia/Kolkata")
     public void calculatePortfolioValue() {
 
@@ -40,6 +46,18 @@ public class PortfolioValueScheduler {
             .distinct()
             .forEach(portfolioId -> {
 
+                if(portfolioValueStatusDao.computedRecently(portfolioId))
+                {
+                    log.info("Portfolio value for this portfolio {} have been calculated within 23 hours.",portfolioId);
+                    return;
+                }
+
+                if(!portfolioValueStatusDao.tryAdvisoryLock(portfolioId))
+                {
+                    log.info("Portfolio value for this portfolio {} is been calculating by another instance.",portfolioId);
+                    return;
+                }
+
                 BigDecimal portfolioValue = positions.stream()
                         .filter(p -> p.getId().getPortfolioId().equals(portfolioId))
                         .map(p -> {
@@ -55,6 +73,8 @@ public class PortfolioValueScheduler {
                 history.setPortfolioValue(portfolioValue);
 
                 historyDao.save(history);
+
+                portfolioValueStatusDao.updateLastComputed(portfolioId);
             });
     }
 }

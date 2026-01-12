@@ -45,9 +45,11 @@ public class BatchProcessingService {
         });
 
         try {
+            
             //send updated positions to web socket
             log.info("Sending updated positions {} to web socket.", result.batchedAnalysisEntities());
             messagingTemplate.convertAndSend("/topic/position-update", result.batchedAnalysisEntities());
+
         } catch (RuntimeException ex) {
             System.out.println("Failed while sending through websocket");
         }

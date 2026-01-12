@@ -31,15 +31,21 @@ public class OutboxDispatcher implements SmartLifecycle {
             try {
                 log.info("Poller is running....");
                 ProcessingResult result = processor.dispatchOnce();
+
                 if (result.systemFailure()) {
+
                     batchSizer.reset();
                     Thread.sleep(2000); // wait ONLY on system failure
+
                 } else if (result.successfulIds().isEmpty()
                         && result.poisonPill() == null) {
+
                     Thread.sleep(5000); // soft wait (empty outbox)
+
                 }
                 log.info("Poller completed polling...");
             } catch (Exception e) {
+                
                 log.error("Outbox dispatcher failed", e);
                 try {
                     Thread.sleep(1000);

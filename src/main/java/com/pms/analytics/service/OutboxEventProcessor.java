@@ -96,10 +96,7 @@ public class OutboxEventProcessor {
             try {
                 RiskEventOuterClass.RiskEvent event = RiskEventOuterClass.RiskEvent.parseFrom(outbox.getPayload());
 
-                kafkaTemplate.send(
-                        TOPIC,
-                        event.getPortfolioId(),
-                        event).get();
+                kafkaTemplate.send(TOPIC, event.getPortfolioId(), event).get();
 
                 log.info("Event {} sent to kakfa successfully.",event);
 

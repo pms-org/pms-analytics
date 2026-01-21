@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
+import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.CannotCreateTransactionException;
@@ -51,9 +52,14 @@ public class KafkaTransactionListener {
             log.error("DB DOWN → Pausing Kafka consumption");
 
             log.info("Pausing the kafka consumer {}.");
-        
+
+            // ConcurrentMessageListenerContainer<?, ?> container
+            //         = (ConcurrentMessageListenerContainer<?, ?>) registry.getListenerContainer("transactionsListener");
+
+            // container.stop(true);
+
             registry.getListenerContainer("transactionsListener").stop();
-            
+
             dbHealthMonitor.pause();
 
             log.info("Consumer thread running continously.");

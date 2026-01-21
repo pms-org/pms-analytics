@@ -204,7 +204,7 @@ public class OutboxEventProcessor {
 
             } catch (InvalidProtocolBufferException e) {
                 return ProcessingResult.poisonPill(successfulIds, outbox);
-            } catch (Exception e) {
+            } catch(Exception e){
                 return ProcessingResult.systemFailure(successfulIds);
             }
         }

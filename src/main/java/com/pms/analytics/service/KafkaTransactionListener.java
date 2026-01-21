@@ -29,10 +29,17 @@ public class KafkaTransactionListener {
     @Autowired
     private KafkaListenerEndpointRegistry registry;
 
+    // @KafkaListener(
+    //         id = "transactionsListener",
+    //         topics = "transactions",
+    //         groupId = "demo-group",
+    //         containerFactory = "protobufKafkaListenerContainerFactory"
+    // )
+    
     @KafkaListener(
             id = "transactionsListener",
-            topics = "transactions",
-            groupId = "demo-group",
+            topics = "${app.kafka.consumer-topic}",
+            groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "protobufKafkaListenerContainerFactory"
     )
     public void consume(List<Transaction> messages, Acknowledgment ack) {

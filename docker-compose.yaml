@@ -13,13 +13,13 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U analytics_user -d analytics_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d analytics_db"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis-master:
-    image: redis:7.2
+    image: redis:7.4
     container_name: redis-master
     command: redis-server /redis/redis-master.conf
     volumes:
@@ -35,7 +35,7 @@ services:
       start_period: 20s
 
   redis-replica-1:
-    image: redis:7.2
+    image: redis:7.4
     command: redis-server /redis/redis-replica.conf
     volumes:
       - ./redis:/redis
@@ -47,7 +47,7 @@ services:
       - backend
 
   redis-replica-2:
-    image: redis:7.2
+    image: redis:7.4
     command: redis-server /redis/redis-replica.conf
     volumes:
       - ./redis:/redis
@@ -59,7 +59,7 @@ services:
       - backend
 
   sentinel-1:
-    image: redis:7.2
+    image: redis:7.4
     command: redis-sentinel /redis/sentinel-1.conf
     volumes:
       - ./redis:/redis
@@ -76,7 +76,7 @@ services:
       retries: 5
 
   sentinel-2:
-    image: redis:7.2
+    image: redis:7.4
     command: redis-sentinel /redis/sentinel-2.conf
     volumes:
       - ./redis:/redis
@@ -93,7 +93,7 @@ services:
       retries: 5
 
   sentinel-3:
-    image: redis:7.2
+    image: redis:7.4
     command: redis-sentinel /redis/sentinel-3.conf
     volumes:
       - ./redis:/redis
@@ -201,7 +201,7 @@ services:
     env_file:
       - .env
     ports:
-      - "8082:8082"
+      - "8086:8086"
     networks:
       - backend
     healthcheck:
@@ -228,7 +228,7 @@ services:
     env_file:
       - .env
     ports:
-      - "8083:8082"
+      - "8087:8086"
     networks:
       - backend
     healthcheck:

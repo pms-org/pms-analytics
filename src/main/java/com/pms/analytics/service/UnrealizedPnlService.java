@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,9 @@ public class UnrealizedPnlService {
     private final SimpMessagingTemplate messagingTemplate;
     private final PortfolioUnrealizedPnlStatusDao portfolioUnrealizedPnlStatusDao;
     private final TransactionsDao transactionsDao;
+
+    @Value("${websocket.topics.unrealized-pnl}")
+    private String unrealizedPnlTopic;
 
     private final Map<String, BigDecimal> lastKnownPrices = new ConcurrentHashMap<>();
 
@@ -64,7 +68,7 @@ public class UnrealizedPnlService {
         }
 
         try {
-            messagingTemplate.convertAndSend("/topic/unrealized-pnl", payload);
+            messagingTemplate.convertAndSend(unrealizedPnlTopic, payload);
             log.info("New unrealized p&l sent to web socket.", payload);
         } catch (Exception e) {
             System.err.println("Failed to send unrealized PnL: " + e.getMessage());

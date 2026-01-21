@@ -33,7 +33,8 @@ public class PriceUpdateScheduler {
     @Autowired
     RiskMetricsCalculator riskMetrics;
 
-    @Scheduled(fixedDelay = 30000)
+    // @Scheduled(fixedDelay = 30000)
+    @Scheduled(fixedDelayString = "${scheduler.price-refresh.delay-ms}")
     public void refreshPrices() {
 
         List<String> symbols = analysisDao.findAllSymbols();

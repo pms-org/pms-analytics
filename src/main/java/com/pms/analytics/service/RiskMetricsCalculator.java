@@ -6,11 +6,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.pms.analytics.dao.AnalysisDao;
 import com.pms.analytics.dao.AnalysisOutboxDao;
-import com.pms.analytics.dao.PortfolioRiskStatusDao;
 import com.pms.analytics.dao.entity.AnalysisOutbox;
 
 import lombok.RequiredArgsConstructor;

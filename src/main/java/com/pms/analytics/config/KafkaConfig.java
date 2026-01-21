@@ -165,7 +165,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
-import com.pms.analytics.dto.RiskEventOuterClass;
+import com.pms.analytics.dto.RiskEventOuterClass.RiskEvent;
 import com.pms.analytics.dto.TransactionOuterClass.Transaction;
 
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer;
@@ -272,7 +272,7 @@ public class KafkaConfig {
     // Producer (RiskEvent)
     // ----------------------------
     @Bean
-    public ProducerFactory<String, RiskEventOuterClass.RiskEvent> riskEventProducerFactory() {
+    public ProducerFactory<String, RiskEvent> riskEventProducerFactory() {
         Map<String, Object> props = new HashMap<>();
 
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -284,7 +284,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, RiskEventOuterClass.RiskEvent> riskEventKafkaTemplate() {
+    public KafkaTemplate<String, RiskEvent> riskEventKafkaTemplate() {
         return new KafkaTemplate<>(riskEventProducerFactory());
     }
 

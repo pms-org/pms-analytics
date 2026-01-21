@@ -128,9 +128,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.pms.analytics.dao.AnalysisOutboxDao;
 import com.pms.analytics.dao.entity.AnalysisOutbox;
-import com.pms.analytics.dto.RiskEventOuterClass;
+import com.pms.analytics.dto.RiskEventOuterClass.RiskEvent;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -139,12 +138,12 @@ public class OutboxEventProcessor {
 
     private final AnalysisOutboxDao outboxDao;
     private final AdaptiveBatchSizer batchSizer;
-    private final KafkaTemplate<String, RiskEventOuterClass.RiskEvent> kafkaTemplate;
+    private final KafkaTemplate<String, RiskEvent> kafkaTemplate;
     private final String topic;
 
     public OutboxEventProcessor(AnalysisOutboxDao outboxDao,
                                 AdaptiveBatchSizer batchSizer,
-                                KafkaTemplate<String, RiskEventOuterClass.RiskEvent> kafkaTemplate,
+                                KafkaTemplate<String, RiskEvent> kafkaTemplate,
                                 @org.springframework.beans.factory.annotation.Value("${app.kafka.producer-topic}") String topic) {
         this.outboxDao = outboxDao;
         this.batchSizer = batchSizer;
@@ -194,8 +193,8 @@ public class OutboxEventProcessor {
 
         for (AnalysisOutbox outbox : events) {
             try {
-                RiskEventOuterClass.RiskEvent event =
-                        RiskEventOuterClass.RiskEvent.parseFrom(outbox.getPayload());
+                RiskEvent event =
+                        RiskEvent.parseFrom(outbox.getPayload());
 
                 kafkaTemplate.send(topic, event.getPortfolioId(), event).get();
 

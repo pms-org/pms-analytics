@@ -17,7 +17,7 @@ import com.pms.analytics.dao.entity.AnalysisEntity;
 import com.pms.analytics.dao.entity.AnalysisOutbox;
 import com.pms.analytics.dao.entity.PortfolioValueHistoryEntity;
 import com.pms.analytics.dto.RiskEventDto;
-import com.pms.analytics.dto.RiskEventOuterClass;
+import com.pms.analytics.dto.RiskEventOuterClass.RiskEvent;
 import com.pms.analytics.externalRedis.RedisPriceCache;
 import com.pms.analytics.mapper.RiskEventMapper;
 
@@ -172,7 +172,7 @@ public class RiskMetricsService {
 
         System.out.println(event);
 
-        RiskEventOuterClass.RiskEvent proto = RiskEventMapper.toProto(event);
+        RiskEvent proto = RiskEventMapper.toProto(event);
 
         AnalysisOutbox outbox = new AnalysisOutbox();
         outbox.setPortfolioId(portfolioId);

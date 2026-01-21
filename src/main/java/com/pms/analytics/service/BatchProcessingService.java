@@ -8,8 +8,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.pms.analytics.dao.AnalysisDao;
-import com.pms.analytics.dao.DltOutboxDao;
 import com.pms.analytics.dto.BatchResult;
 import com.pms.analytics.dto.TransactionOuterClass.Transaction;
 
@@ -68,11 +66,11 @@ public class BatchProcessingService {
     @Autowired
     private TransactionService transactionService;
 
-    @Autowired
-    private AnalysisDao analysisDao;
+    // @Autowired
+    // private AnalysisDao analysisDao;
 
-    @Autowired
-    private DltOutboxDao dltOutboxDao;
+    // @Autowired
+    // private DltOutboxDao dltOutboxDao;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;

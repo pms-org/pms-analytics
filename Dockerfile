@@ -1,28 +1,31 @@
-FROM maven:3.9-eclipse-temurin-21 AS build
-
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-21 AS builder
 WORKDIR /app
 
+# Copy pom first to cache dependencies
 COPY pom.xml .
-RUN mvn -ntp dependency:go-offline
+RUN mvn dependency:go-offline
 
+# Copy source and build
 COPY src ./src
+RUN mvn clean package -DskipTests
 
-RUN mvn -ntp clean package -DskipTests
-
+# Stage 2: Runtime
 FROM eclipse-temurin:21-jre-alpine
-
 WORKDIR /app
 
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
+# Create non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN mkdir -p /app/logs && chown appuser:appgroup /app/logs
+USER appuser
 
-COPY --from=build /app/target/*.jar app.jar
+# Copy JAR from builder
+COPY --from=builder /app/target/*.jar app.jar
 
-EXPOSE 8082
+# Configuration for JVM inside container
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1
-
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
+# Expose Port
+EXPOSE 8086
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

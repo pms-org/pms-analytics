@@ -64,11 +64,18 @@ public class RedisConfig {
     @Value("${spring.data.redis.timeout}")
     private long redisTimeoutMs;
 
+    @Value("${spring.data.redis.password:}")
+    private String redisPassword;
+
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
 
         RedisSentinelConfiguration config = new RedisSentinelConfiguration();
         config.master(sentinelMaster);
+        
+        if (redisPassword != null && !redisPassword.isEmpty()) {
+            config.setPassword(redisPassword);
+        }
 
         for (String node : sentinelNodes) {
             String[] parts = node.split(":");

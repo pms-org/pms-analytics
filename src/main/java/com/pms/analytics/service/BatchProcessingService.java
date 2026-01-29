@@ -75,6 +75,9 @@ public class BatchProcessingService {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+    @Autowired
+    private RiskMetricsCalculator riskMetricsCalculator;
+
     @Value("${websocket.topics.position-update}")
     private String positionUpdateTopic;
 
@@ -93,6 +96,14 @@ public class BatchProcessingService {
             messagingTemplate.convertAndSend(positionUpdateTopic, result.batchedAnalysisEntities());
         } catch (RuntimeException ex) {
             log.error("Failed sending updated positions to WebSocket", ex);
+        }
+
+        // Populate outbox after each batch (every ~30 seconds)
+        try {
+            log.info("Triggering risk metrics calculation to populate outbox after batch processing.");
+            riskMetricsCalculator.computeRiskMetricsForAllPortfolios();
+        } catch (RuntimeException ex) {
+            log.error("Failed to compute risk metrics and populate outbox", ex);
         }
     }
 }

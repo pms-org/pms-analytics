@@ -29,10 +29,21 @@ public class TransactionMapper {
                 UUID.fromString(proto.getPortfolioId()),
                 proto.getSymbol(),
                 com.pms.analytics.utilities.TradeSide.valueOf(proto.getSide()),
-                new BigDecimal(proto.getBuyPrice()),
-                new BigDecimal(proto.getSellPrice()),
+                parseBigDecimal(proto.getBuyPrice()),
+                parseBigDecimal(proto.getSellPrice()),
                 proto.getQuantity()
         );
+    }
+
+    private static BigDecimal parseBigDecimal(String value) {
+        if (value == null || value.trim().isEmpty() || value.equalsIgnoreCase("NA")) {
+            return BigDecimal.ZERO;
+        }
+        try {
+            return new BigDecimal(value);
+        } catch (NumberFormatException e) {
+            return BigDecimal.ZERO;
+        }
     }
 
 }

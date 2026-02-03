@@ -19,6 +19,7 @@ import com.pms.analytics.dto.BatchResult;
 import com.pms.analytics.dto.TransactionDto;
 import com.pms.analytics.dto.TransactionOuterClass.Transaction;
 import com.pms.analytics.exception.InsufficientHoldingsException;
+import com.pms.analytics.exception.InvalidTransactionException;
 import com.pms.analytics.mapper.TransactionMapper;
 import com.pms.analytics.utilities.TradeSide;
 
@@ -170,6 +171,11 @@ public class TransactionService {
         long qty = dto.getQuantity();
         BigDecimal price = dto.getBuyPrice();
 
+        if(price.equals(BigDecimal.ZERO)) {
+            log.error("BUY failed: Buy price cannot be zero.");
+            throw new InvalidTransactionException("Buy price cannot be zero for a buy transaction");
+        }
+
         entity.setHoldings(entity.getHoldings() + qty);
 
         BigDecimal invested = price.multiply(BigDecimal.valueOf(qty));
@@ -185,6 +191,11 @@ public class TransactionService {
         BigDecimal buyPrice = dto.getBuyPrice(); // Already provided
 
         long currentHoldings = entity.getHoldings();
+        
+        if(buyPrice.equals(BigDecimal.ZERO) || sellPrice.equals(BigDecimal.ZERO)) {
+            log.error("SELL failed: Buy/Sell Price cannot be zero.");
+            throw new InvalidTransactionException("Buy/Sell Price cannot be zero for a sell transaction");
+        }
 
         // cannot sell more than current holdings
         if (qty > currentHoldings) {

@@ -39,7 +39,7 @@ public class TransactionService {
 
     @Transactional
     public BatchResult processBatchInTransaction(List<Transaction> messages) {
-        System.out.println("Processing the batch in the transaction service: ");
+        log.info("Processing the batch in the transaction service: ");
 
         List<Transaction> validMessages = new ArrayList<>();
         //create a map here 
@@ -57,14 +57,14 @@ public class TransactionService {
             try {
 
                 if (!batchTransactionIds.add(message.getTransactionId())) {
-                    System.out.println("Duplicate transaction in same batch: " + message.getTransactionId());
+                    log.info("Duplicate transaction in same batch: " + message.getTransactionId());
                     continue;
                 }
 
-                if (idempotencyService.isDuplicate(message.getTransactionId())) {
-                    System.out.println("Transaction: " + message.getTransactionId() + " already processed!");
-                    continue;
-                }
+                // if (idempotencyService.isDuplicate(message.getTransactionId())) {
+                //     System.out.println("Transaction: " + message.getTransactionId() + " already processed!");
+                //     continue;
+                // }
 
                 validMessages.add(message);
 
@@ -76,7 +76,7 @@ public class TransactionService {
                 analysisKeysInBatch.add(analysisKey);
 
             } catch (RuntimeException ex) {
-                System.out.println("Error processing transaction " + message.getTransactionId() + ": " + ex.getMessage());
+                log.error("Error processing transaction " + message.getTransactionId() + ": " + ex.getMessage());
             }
 
         }
@@ -91,7 +91,7 @@ public class TransactionService {
         for (Transaction message : validMessages) {
             try {
 
-                System.out.println("Processing Transaction message: " + message);
+                log.info("Processing Transaction message: " + message);
 
                 TransactionDto transactionDto = TransactionMapper.fromProto(message);
 
@@ -99,7 +99,7 @@ public class TransactionService {
 
                 processedTransactionIds.add(message.getTransactionId());
             } catch (RuntimeException ex) {
-                System.out.println("Error processing transaction " + message.getTransactionId() + ": " + ex.getMessage());
+                log.error("Error processing transaction " + message.getTransactionId() + ": " + ex.getMessage());
 
                 DltOutbox dltOutbox = new DltOutbox();
                 dltOutbox.setPortfolioId(UUID.fromString(message.getPortfolioId()));
@@ -139,11 +139,11 @@ public class TransactionService {
 
         if (isAlreadyCached) {
 
-            System.out.println("Using cached AnalysisEntity for key: " + key);
+            log.info("Using cached AnalysisEntity for key: " + key);
             analysisEntity = cachedAnalysisMap.get(key);
 
         } else {
-            System.out.println("Creating new AnalysisEntity for key: " + key);
+            log.info("Creating new AnalysisEntity for key: " + key);
 
             AnalysisEntity newAnalysisEntity = new AnalysisEntity();
             newAnalysisEntity.setId(key);
@@ -175,7 +175,7 @@ public class TransactionService {
         BigDecimal invested = price.multiply(BigDecimal.valueOf(qty));
         entity.setTotalInvested(entity.getTotalInvested().add(invested));
 
-        System.out.println("BUY updated: " + entity);
+        log.info("BUY updated: " + entity);
     }
 
     private void handleSell(AnalysisEntity entity, TransactionDto dto) {
@@ -188,7 +188,7 @@ public class TransactionService {
 
         // cannot sell more than current holdings
         if (qty > currentHoldings) {
-            System.err.println("SELL failed: insufficient holdings. Trying to sell " + qty
+            log.error("SELL failed: insufficient holdings. Trying to sell " + qty
                     + " but only " + currentHoldings + " available.");
             throw new InsufficientHoldingsException("Insufficient holdings: Trying to sell " + qty + " but only " + currentHoldings + " available.");
         }
@@ -207,7 +207,7 @@ public class TransactionService {
             entity.setTotalInvested(BigDecimal.ZERO);
         }
 
-        System.out.println("SELL updated: " + entity);
+        log.info("SELL updated: " + entity);
     }
 
 }

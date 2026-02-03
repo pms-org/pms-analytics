@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 public class DltOutbox {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "dlt_outbox_id")
     private UUID dltOutboxId;
 

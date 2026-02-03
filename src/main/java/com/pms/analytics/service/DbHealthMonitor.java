@@ -33,13 +33,13 @@ public class DbHealthMonitor {
         }
     }
 
-    @Async
+   
     public void monitorAndResume() {
         try {
             while (paused) {
                 if (databaseIsUp()) {
                     log.info("DB is back → Resuming Kafka consumption");
-                    registry.getListenerContainer("transactionsListener").start();
+                    registry.getListenerContainer("transactionsListener").resume();
                     paused = false;
                     monitoring = false;
                     return;

@@ -79,7 +79,12 @@ spring:
     show-sql: ${DB_SHOW_SQL:false}
 
     properties:
-      hibernate.jdbc.time_zone: UTC
+      hibernate:
+        jdbc:
+          time_zone: UTC
+          batch_size: ${DB_JDBC_BATCH_SIZE}
+        order_inserts: true
+        order_updates: true
 
   data:
     redis:
@@ -89,6 +94,7 @@ spring:
       sentinel:
         master: ${ANALYTICS_REDIS_SENTINEL_MASTER}
         nodes: ${ANALYTICS_REDIS_SENTINEL_NODES}
+        
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
     properties:
@@ -118,9 +124,13 @@ app:
   kafka:
     consumer-topic: ${ANALYTICS_KAFKA_CONSUMER_TOPIC}
     producer-topic: ${ANALYTICS_KAFKA_PRODUCER_TOPIC}
+    consumer-id: ${ANALYTICS_KAFKA_CONSUMER_ID}
   redis:
     price-key: ${ANALYTICS_REDIS_PRICE_KEY}
     transaction-key: ${ANALYTICS_REDIS_TRANSACTION_KEY}
+  buffer:
+    size: ${ANALYTICS_BUFFER_SIZE}
+    flush-interval-ms: ${ANALYTICS_FLUSH_INTERVAL_MS}
 
 # ==============================
 # Scheduling

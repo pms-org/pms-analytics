@@ -152,7 +152,7 @@ public class BatchProcessor implements SmartLifecycle {
 
             }
 
-        }
+        } 
     }
 
     public void pauseConsumerAndStartHealthCheck(boolean startDBHealthCheck, boolean startRedisHealthCheck) {

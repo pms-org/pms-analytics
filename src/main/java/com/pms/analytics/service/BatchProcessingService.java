@@ -80,7 +80,7 @@ public class BatchProcessingService {
 
     @Transactional
     public void processBatch(List<Transaction> messages) {
-        System.out.println("Processing batch of " + messages.size() + " transactions.");
+        log.info("Processing batch of " + messages.size() + " transactions.");
 
         BatchResult result = transactionService.processBatchInTransaction(messages);
 

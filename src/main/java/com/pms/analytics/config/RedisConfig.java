@@ -40,6 +40,7 @@
 
 package com.pms.analytics.config;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -62,7 +63,11 @@ public class RedisConfig {
     private List<String> sentinelNodes;
 
     @Value("${spring.data.redis.timeout}")
-    private long redisTimeoutMs;
+    private Duration redisTimeoutMs;
+
+    @Value("{spring.data.redis.password:}")
+    private String redisPassword;
+
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
@@ -75,8 +80,12 @@ public class RedisConfig {
             config.sentinel(new RedisNode(parts[0], Integer.parseInt(parts[1])));
         }
 
+        if(redisPassword != null && !redisPassword.isEmpty()){
+            config.setPassword(redisPassword);
+        }
+
         LettuceConnectionFactory factory = new LettuceConnectionFactory(config);
-        factory.setTimeout(redisTimeoutMs);
+        factory.setTimeout(redisTimeoutMs.toMillis());
         return factory;
     }
 

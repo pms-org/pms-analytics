@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Entity
-@Table(name = "dlt_outbox")
+@Table(name = "analytics_dlt_outbox")
 public class DltOutbox {
 
     @Id

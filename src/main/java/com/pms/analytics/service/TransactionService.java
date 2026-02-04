@@ -62,10 +62,10 @@ public class TransactionService {
                     continue;
                 }
 
-                // if (idempotencyService.isDuplicate(message.getTransactionId())) {
-                //     System.out.println("Transaction: " + message.getTransactionId() + " already processed!");
-                //     continue;
-                // }
+                if (idempotencyService.isDuplicate(message.getTransactionId())) {
+                    System.out.println("Transaction: " + message.getTransactionId() + " already processed!");
+                    continue;
+                }
 
                 validMessages.add(message);
 

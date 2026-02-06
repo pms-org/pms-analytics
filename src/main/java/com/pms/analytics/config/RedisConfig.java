@@ -65,7 +65,7 @@ public class RedisConfig {
     @Value("${spring.data.redis.timeout}")
     private Duration redisTimeoutMs;
 
-    @Value("{spring.data.redis.password:}")
+    @Value("${spring.data.redis.password:}")
     private String redisPassword;
 
 

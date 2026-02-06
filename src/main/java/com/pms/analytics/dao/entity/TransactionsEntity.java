@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Entity
-@Table(name = "pms_core_transactions")
+@Table(name = "transactions")
 public class TransactionsEntity{
 
     @Id

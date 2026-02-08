@@ -94,7 +94,7 @@ public class UnrealizedPnlService {
             try {
                 String symbol = txn.getTrade().getSymbol();
                 Long remainingQty = txn.getQuantity();
-                BigDecimal buyPrice = txn.getBuyPrice();
+                BigDecimal buyPrice = txn.getTrade().getPricePerStock();
 
                 if (remainingQty <= 0) {
                     log.info("Tnx quantity is less than zero,so skipping the tnx.");

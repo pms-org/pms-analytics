@@ -13,9 +13,11 @@ import com.pms.analytics.service.RiskMetricsCalculator;
 import com.pms.analytics.service.UnrealizedPnlCalculator;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PriceUpdateScheduler {
 
     @Autowired
@@ -36,18 +38,32 @@ public class PriceUpdateScheduler {
     // @Scheduled(fixedDelay = 30000)
     @Scheduled(fixedDelayString = "${scheduler.price-refresh.delay-ms}")
     public void refreshPrices() {
+        
+        log.info("[Scheduler] Starting price refresh from Finnhub...");
 
         List<String> symbols = analysisDao.findAllSymbols();
-        if (symbols.isEmpty()) return;
+        log.info("[Scheduler] Found {} symbols to update prices for", symbols.size());
+        
+        if (symbols.isEmpty()) {
+            log.warn("[Scheduler] No symbols found, skipping price refresh");
+            return;
+        }
 
-        symbols.forEach(symbol ->
+        symbols.forEach(symbol -> {
+            log.debug("[Scheduler] Fetching price for symbol: {}", symbol);
             priceClient.fetchPriceAsync(symbol)
-                    .subscribe(price -> priceCache.updatePrice(symbol, price))
-        );
+                    .doOnSuccess(price -> log.debug("[Scheduler] Updated price for {}: {}", symbol, price))
+                    .doOnError(error -> log.error("[Scheduler] Error fetching price for {}: {}", symbol, error.getMessage()))
+                    .subscribe(price -> priceCache.updatePrice(symbol, price));
+        });
 
+        log.info("[Scheduler] Triggering unrealized PnL calculation...");
         unrealizedPnl.computeUnRealisedPnlAndBroadcast();
 
+        log.info("[Scheduler] Triggering risk metrics calculation...");
         riskMetrics.computeRiskMetricsForAllPortfolios();
+        
+        log.info("[Scheduler] Price refresh cycle completed");
 
     }
 }

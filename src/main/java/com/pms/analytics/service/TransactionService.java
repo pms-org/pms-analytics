@@ -55,7 +55,6 @@ public class TransactionService {
         List<DltOutbox> dltOutboxEntries = new ArrayList<>();
 
         for (Transaction message : messages) {
-            try {
 
                 if (!batchTransactionIds.add(message.getTransactionId())) {
                     log.info("Duplicate transaction in same batch: " + message.getTransactionId());
@@ -75,10 +74,6 @@ public class TransactionService {
                 );
 
                 analysisKeysInBatch.add(analysisKey);
-
-            } catch (RuntimeException ex) {
-                log.error("Error processing transaction " + message.getTransactionId() + ": " + ex.getMessage());
-            }
 
         }
 

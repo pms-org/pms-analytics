@@ -31,13 +31,7 @@ public class KafkaTransactionListener {
 
     @Value("${app.buffer.size}")
     private int totalBufferCapacity;
-    
-    // @KafkaListener(
-    //         id = "transactionsListener",
-    //         topics = "transactions",
-    //         groupId = "demo-group",
-    //         containerFactory = "protobufKafkaListenerContainerFactory"
-    // )
+
     @KafkaListener(
             id = "${app.kafka.consumer-id}",
             topics = "${app.kafka.consumer-topic}",
